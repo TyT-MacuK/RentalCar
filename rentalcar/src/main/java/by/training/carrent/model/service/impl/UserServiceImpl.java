@@ -13,9 +13,7 @@ import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.dao.impl.UserDaoImpl;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.UserService;
-
-//TODO method authorization
-//TODO method registration
+import by.training.carrent.util.HashGenerator;
 
 public class UserServiceImpl implements UserService {
 	private static final Logger logger = LogManager.getLogger();
@@ -25,8 +23,29 @@ public class UserServiceImpl implements UserService {
 	private UserServiceImpl() {
 	}
 
-	public UserServiceImpl getInstance() {
+	public static UserServiceImpl getInstance() {
 		return INSTANCE;
+	}
+	
+	@Override
+	public Optional<User> registration(User user, String password) throws ServiceException {
+		logger.log(Level.INFO, "method registration()");
+		Optional<User> registeredUser  = Optional.empty();
+		HashGenerator hashGenerator = HashGenerator.getInstance();
+		password = hashGenerator.generatePasswordHash(password);
+		try {
+			registeredUser = userDao.findByEmailAndPassword(user.getEmail(), password);
+			if (registeredUser.isEmpty()) {
+				boolean isRegistrationSuccess = userDao.add(user, password);
+				if (isRegistrationSuccess) {
+					registeredUser = userDao.findByEmail(user.getEmail());
+				}
+			}
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method registration()", e);
+			throw new ServiceException("Exception when registration user", e);
+		}
+		return registeredUser;
 	}
 
 	@Override
@@ -35,7 +54,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.findAll();
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findAll()");
+			logger.log(Level.ERROR, "exception in method findAll()", e);
 			throw new ServiceException("Exception when find all users", e);
 		}
 	}
@@ -46,7 +65,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.findById(userId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findById()");
+			logger.log(Level.ERROR, "exception in method findById()", e);
 			throw new ServiceException("Exception when find user by id", e);
 		}
 	}
@@ -57,7 +76,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.findByDateOfBirth(dateOfBirth);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByDateOfBirth()");
+			logger.log(Level.ERROR, "exception in method findByDateOfBirth()", e);
 			throw new ServiceException("Exception when find user by date of birth", e);
 		}
 	}
@@ -68,7 +87,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.updateEmail(userId, email);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateEmail()");
+			logger.log(Level.ERROR, "exception in method updateEmail()", e);
 			throw new ServiceException("Exception when update email", e);
 		}
 	}
@@ -79,7 +98,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.updateDiscount(userId, discount);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateDiscount()");
+			logger.log(Level.ERROR, "exception in method updateDiscount()", e);
 			throw new ServiceException("Exception when update discount", e);
 		}
 	}
@@ -90,7 +109,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.updatePhoneNumber(userId, phoneNumber);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updatePhoneNumber()");
+			logger.log(Level.ERROR, "exception in method updatePhoneNumber()", e);
 			throw new ServiceException("Exception when update phone number", e);
 		}
 	}
@@ -101,7 +120,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDao.updateStatus(userId, statusId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateStatus()");
+			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new ServiceException("Exception when update status", e);
 		}
 	}

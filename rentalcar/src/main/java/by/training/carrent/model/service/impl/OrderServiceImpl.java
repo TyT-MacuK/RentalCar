@@ -21,7 +21,7 @@ public class OrderServiceImpl implements OrderService {
 	private OrderServiceImpl() {
 	}
 	
-	public OrderServiceImpl getInstance() {
+	public static OrderServiceImpl getInstance() {
 		return INSTANCE;
 	}
 
@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDao.findAll();
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findAll()");
+			logger.log(Level.ERROR, "exception in method findAll()", e);
 			throw new ServiceException("Exception when find all orders", e);
 		}
 	}
@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDao.findById(orderId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findById()");
+			logger.log(Level.ERROR, "exception in method findById()", e);
 			throw new ServiceException("Exception when find orders by id", e);
 		}
 	}
@@ -53,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDao.findByStatus(status);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByStatus()");
+			logger.log(Level.ERROR, "exception in method findByStatus()", e);
 			throw new ServiceException("Exception when find orders by status", e);
 		}
 	}
@@ -64,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDao.findByCarId(carId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByCarId()");
+			logger.log(Level.ERROR, "exception in method findByCarId()", e);
 			throw new ServiceException("Exception when find orders by car id", e);
 		}
 	}
@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDao.findByUserId(userId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByUserId()");
+			logger.log(Level.ERROR, "exception in method findByUserId()", e);
 			throw new ServiceException("Exception when find orders by user id", e);
 		}
 	}
@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDao.updateStatus(orderId, statusId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateStatus()");
+			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new ServiceException("Exception when update status", e);
 		}
 	}

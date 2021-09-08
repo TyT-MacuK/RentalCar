@@ -8,6 +8,8 @@ import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
 
 public interface UserService {
+	Optional<User> registration(User user, String password) throws ServiceException;
+	
 	List<User> findAll() throws ServiceException;
 
 	Optional<User> findById(long userId) throws ServiceException;
