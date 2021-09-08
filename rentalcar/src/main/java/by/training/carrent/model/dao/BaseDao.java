@@ -9,6 +9,5 @@ import by.training.carrent.model.entity.AbstractEntity;
 public interface BaseDao<K, T extends AbstractEntity> {
 	List<T> findAll()  throws DaoException;
 	Optional<T> findById(K id)  throws DaoException;
-	boolean add(T t)  throws DaoException ;
 	boolean remove(T t)  throws DaoException;
 }
