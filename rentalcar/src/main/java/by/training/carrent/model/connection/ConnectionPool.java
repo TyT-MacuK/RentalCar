@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //TODO ConnectionPool
-//TODO getConnection
 //TODO releaseConnection
 public class ConnectionPool {
 	private static final Logger logger = LogManager.getLogger();
@@ -46,12 +45,12 @@ public class ConnectionPool {
 			givenAwayConnections.put(proxyConnection);
 		} catch (InterruptedException e) {
 			logger.log(Level.ERROR, "exception in method getConnection()", e);
-			Thread.currentThread().interrupt();// TODO
+			Thread.currentThread().interrupt();
 		}
 		return proxyConnection;
 	}
 
-	public boolean releaseConnection(Connection connection) {
+	public boolean releaseConnection(Connection connection) { //TODO semafor
 		boolean result = false;
 		if (connection instanceof ProxyConnection && givenAwayConnections.remove(connection)) {
 			try {
@@ -59,7 +58,6 @@ public class ConnectionPool {
 				result = true;
 			} catch (InterruptedException e) {
 				logger.log(Level.ERROR, "exception in method getConnection()", e);
-				//TODO ServiceException???
 			}
 		} else {
 			logger.log(Level.ERROR, "error in method releaseConnection()");
@@ -103,8 +101,8 @@ public class ConnectionPool {
 				ProxyConnection proxyConnection = new ProxyConnection(connection);
 				freeConnections.offer(proxyConnection);
 			} catch (SQLException e) {
-				logger.log(Level.FATAL, "connection does not create");
-				throw new RuntimeException("FatalException. Connection does not create", e);
+				logger.log(Level.FATAL, "connection does not create", e);
+				throw new RuntimeException("Fatal error. Connection does not create", e);
 			}
 		}
 	}

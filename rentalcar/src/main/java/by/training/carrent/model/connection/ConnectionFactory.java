@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConnectionFactory {
+class ConnectionFactory {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String DATABASE_PROPERTY_PATH = "properties/database.properties";
 	private static final String DATABASE_URL = "url";
@@ -21,7 +21,7 @@ public class ConnectionFactory {
 
 	static {
 		try {
-			InputStream inputStream = ConnectionFactory.class.getClassLoader()
+			InputStream inputStream = Thread.currentThread().getContextClassLoader()
 					.getResourceAsStream(DATABASE_PROPERTY_PATH);
 			if (inputStream == null) {
 				logger.log(Level.FATAL, "properties for connection to data base is not found : {}",
@@ -40,7 +40,7 @@ public class ConnectionFactory {
 				throw new RuntimeException("Fatal error. Driver class name does not found");
 			}
 		} catch (IOException e) {
-			logger.log(Level.FATAL, "file cannot be read");
+			logger.log(Level.FATAL, "file cannot be read", e);
 			throw new RuntimeException("Fatal error. Properties file cannot be read", e);
 		}
 	}
@@ -49,6 +49,7 @@ public class ConnectionFactory {
 	}
 
 	static Connection createConnection() throws SQLException {
-		return DriverManager.getConnection(urlDb, properties);
+		Connection connection = DriverManager.getConnection(urlDb, properties); 
+		return new ProxyConnection(connection);
 	}
 }

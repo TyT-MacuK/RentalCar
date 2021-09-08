@@ -156,7 +156,6 @@ public class CarDaoImpl implements CarDao {
 		return INSTANCE;
 	}
 
-	@Override
 	public boolean add(Car car) throws DaoException {
 		logger.log(Level.INFO, "method add()");
 		boolean result = false;
@@ -172,7 +171,7 @@ public class CarDaoImpl implements CarDao {
 			statement.setLong(8, car.getCarStatus().ordinal() + 1);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method add()");
+			logger.log(Level.ERROR, "exception in method add()", e);
 			throw new DaoException("Exception when add car", e);
 		}
 		return result;
@@ -188,16 +187,16 @@ public class CarDaoImpl implements CarDao {
 	@Override
 	public List<Car> findAll() throws DaoException {
 		logger.log(Level.INFO, "method findAll()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_ALL);
 				ResultSet resultSet = statement.executeQuery()) {
-			result = createListCars(resultSet);
+			listCars = createListCars(resultSet);
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findAll()");
+			logger.log(Level.ERROR, "exception in method findAll()", e);
 			throw new DaoException("Exception when find all cars", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
@@ -217,11 +216,11 @@ public class CarDaoImpl implements CarDao {
 							.setCarTransmission(Car.CarTransmission.valueOf(resultSet.getString(9)))
 							.setCarManufacturer(Car.CarManufacturer.valueOf(resultSet.getString(2)))
 							.setCarStatus(Car.CarStatus.valueOf(resultSet.getString(10).toUpperCase())).build();
-					result = Optional.of(car);
+					result = Optional.ofNullable(car);
 				}
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findById()");
+			logger.log(Level.ERROR, "exception in method findById()", e);
 			throw new DaoException("Exception when find by id car", e);
 		}
 		return result;
@@ -230,86 +229,86 @@ public class CarDaoImpl implements CarDao {
 	@Override
 	public List<Car> findByModel(String model) throws DaoException {
 		logger.log(Level.INFO, "method findByModel()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_MODEL)) {
 			statement.setString(1, model);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByModel()");
+			logger.log(Level.ERROR, "exception in method findByModel()", e);
 			throw new DaoException("Exception when find by model car", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
 	public List<Car> findByDiscount(int discount) throws DaoException {
 		logger.log(Level.INFO, "method findByModel()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_DISCOUNT)) {
 			statement.setInt(1, discount);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByDiscount()");
+			logger.log(Level.ERROR, "exception in method findByDiscount()", e);
 			throw new DaoException("Exception when find by discount", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
 	public List<Car> findByYear(int year) throws DaoException {
 		logger.log(Level.INFO, "method findByYear()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_YEAR)) {
 			statement.setInt(1, year);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByYear()");
+			logger.log(Level.ERROR, "exception in method findByYear()", e);
 			throw new DaoException("Exception when find by year", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
 	public List<Car> findByConditioner(boolean conditioner) throws DaoException {
 		logger.log(Level.INFO, "method findByConditioner()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_CONDITIONER)) {
 			statement.setBoolean(1, conditioner);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByConditioner()");
+			logger.log(Level.ERROR, "exception in method findByConditioner()", e);
 			throw new DaoException("Exception when find by conditioner", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
 	public List<Car> findByCost(BigDecimal cost) throws DaoException {
 		logger.log(Level.INFO, "method findByCost()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_COST)) {
 			statement.setBigDecimal(1, cost);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByCost()");
+			logger.log(Level.ERROR, "exception in method findByCost()", e);
 			throw new DaoException("Exception when find by cost", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
@@ -323,7 +322,7 @@ public class CarDaoImpl implements CarDao {
 				result = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByClass()");
+			logger.log(Level.ERROR, "exception in method findByClass()", e);
 			throw new DaoException("Exception when find by class", e);
 		}
 		return result;
@@ -332,52 +331,52 @@ public class CarDaoImpl implements CarDao {
 	@Override
 	public List<Car> findByTransmission(String carTransmission) throws DaoException {
 		logger.log(Level.INFO, "method findByTransmission()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_TRANSMISSION)) {
 			statement.setString(1, carTransmission);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByTransmission()");
+			logger.log(Level.ERROR, "exception in method findByTransmission()", e);
 			throw new DaoException("Exception when find by transmission", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
 	public List<Car> findByManufacture(String carManufacturer) throws DaoException {
 		logger.log(Level.INFO, "method findByManufacture()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_MANUFACTURER)) {
 			statement.setString(1, carManufacturer);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByManufacture()");
+			logger.log(Level.ERROR, "exception in method findByManufacture()", e);
 			throw new DaoException("Exception when find by manufacture", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
 	public List<Car> findByStatus(String carStatus) throws DaoException {
 		logger.log(Level.INFO, "method findByStatus()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_STATUS)) {
 			statement.setString(1, carStatus.replace(UNDERSCORE, SPASE));
 			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
+				listCars = createListCars(resultSet);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByStatus()");
+			logger.log(Level.ERROR, "exception in method findByStatus()", e);
 			throw new DaoException("Exception when find by status", e);
 		}
-		return result;
+		return listCars;
 	}
 
 	@Override
@@ -390,7 +389,7 @@ public class CarDaoImpl implements CarDao {
 			statement.setInt(1, discount);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method updateDiscount()");
+			logger.log(Level.ERROR, "exception in method updateDiscount()", e);
 			throw new DaoException("Exception when update discount", e);
 		}
 		return result;
@@ -406,7 +405,7 @@ public class CarDaoImpl implements CarDao {
 			statement.setBigDecimal(1, cost);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method updateCost()");
+			logger.log(Level.ERROR, "exception in method updateCost()", e);
 			throw new DaoException("Exception when update cost", e);
 		}
 		return result;
@@ -422,14 +421,14 @@ public class CarDaoImpl implements CarDao {
 			statement.setLong(1, carStatusId);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method updaupdateStatusteModel()");
+			logger.log(Level.ERROR, "exception in method updaupdateStatusteModel()", e);
 			throw new DaoException("Exception when update status", e);
 		}
 		return result;
 	}
 	private List<Car> createListCars(ResultSet resultSet) throws DaoException {
 		logger.log(Level.INFO, "method createListCars()");
-		List<Car> result = new ArrayList<>();
+		List<Car> listCars = new ArrayList<>();
 		try {
 			while (resultSet.next()) {
 				Car car = new Car.Builder().setCarId(resultSet.getLong(CAR_ID)).setModel(resultSet.getString(CAR_MODEL))
@@ -440,12 +439,12 @@ public class CarDaoImpl implements CarDao {
 						.setCarTransmission(Car.CarTransmission.valueOf(resultSet.getString(9)))
 						.setCarManufacturer(Car.CarManufacturer.valueOf(resultSet.getString(2)))
 						.setCarStatus(Car.CarStatus.valueOf(resultSet.getString(10).replace(SPASE, UNDERSCORE))).build();
-				result.add(car);
+				listCars.add(car);
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method createListCars()");
+			logger.log(Level.ERROR, "exception in method createListCars()", e);
 			throw new DaoException("Exception when add new car to list", e);
 		}
-		return result;
+		return listCars;
 	}
 }
