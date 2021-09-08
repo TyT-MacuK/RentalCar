@@ -18,24 +18,31 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.ServiceException;
-import by.training.carrent.model.connection.ConnectionFactory;
 
 //TODO
 
 public class EmailSender {
 	private static final Logger logger = LogManager.getLogger();
+	private static final EmailSender INSTANCE = new EmailSender();
 	private static final String MAIL_PROPERTIES_PATH = "properties/mail.properties";
 	private static final String USER_KEY = "mail.user.user";
 	private static final String PASSWORD_KEY = "mail.user.password";
 	private static final String TITLE_MAIL = "Message from car rent";         // TODO
 	private static final String MAIL_CONTENT_TYPE = "text/html";
+	
+	private EmailSender() {
+	}
+	
+	public static EmailSender getInstance() {
+		return INSTANCE;
+	}
 
 	public boolean sendMail(String emailTo, String addres) throws ServiceException {
 		logger.log(Level.INFO, "method senMail");
 		boolean result = false;
 		Properties properties = new Properties();
 		try {
-			InputStream inputStream = ConnectionFactory.class.getClassLoader()
+			InputStream inputStream = Thread.currentThread().getContextClassLoader()
 					.getResourceAsStream(MAIL_PROPERTIES_PATH);
 			if (inputStream == null) {                            // TODO exception or only logger??
 				logger.log(Level.ERROR, "properties for mail is not found : {}", MAIL_PROPERTIES_PATH);
@@ -43,7 +50,7 @@ public class EmailSender {
 			}
 			properties.load(inputStream);
 		} catch (IOException e) {
-			logger.log(Level.ERROR, "properties fot mail cannot be read");
+			logger.log(Level.ERROR, "properties fot mail cannot be read", e);
 			throw new ServiceException("Error. Properties file cannot be read", e);
 		}
 		String user = properties.getProperty(USER_KEY);

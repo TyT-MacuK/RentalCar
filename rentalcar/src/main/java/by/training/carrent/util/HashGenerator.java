@@ -9,13 +9,18 @@ import org.apache.logging.log4j.Logger;
 
 public class HashGenerator {
 	private static final Logger logger = LogManager.getLogger();
+	private static final HashGenerator INSTANCE = new HashGenerator();
 	private static final String ALGORITHM_SHA256 = "SHA-256";
 	private static final String HEXADECIMAL_FORMAT = "%02x";
 
 	private HashGenerator() {
 	}
+	
+	public static HashGenerator getInstance() {
+		return INSTANCE;
+	}
 
-	public static String generatePasswordHash(String password) {
+	public String generatePasswordHash(String password) {
 		logger.log(Level.INFO, "method generatePasswordHash()");
 		byte[] passwordBytes = null;
 		try {
