@@ -8,7 +8,7 @@ public class User extends AbstractEntity {
 	}
 
 	public enum UserRole {
-		ADMIN, MANAGER, USER, GUEST
+		ADMIN, USER, GUEST
 	}
 
 	private long userId;
