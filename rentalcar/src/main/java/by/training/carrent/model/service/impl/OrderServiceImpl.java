@@ -15,14 +15,14 @@ import by.training.carrent.model.service.OrderService;
 
 public class OrderServiceImpl implements OrderService {
 	private static final Logger logger = LogManager.getLogger();
-	private static final OrderServiceImpl INSTANCE = new OrderServiceImpl();
+	private static final OrderServiceImpl instance = new OrderServiceImpl();
 	private static final OrderDaoImpl orderDao = OrderDaoImpl.getInstance();
 	
 	private OrderServiceImpl() {
 	}
 	
 	public static OrderServiceImpl getInstance() {
-		return INSTANCE;
+		return instance;
 	}
 
 	@Override

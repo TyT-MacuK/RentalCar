@@ -16,14 +16,14 @@ import by.training.carrent.model.service.CarService;
 
 public class CarServiceImpl implements CarService {
 	private static final Logger logger = LogManager.getLogger();
-	private static final CarServiceImpl INSTANCE = new CarServiceImpl();
+	private static final CarServiceImpl instance = new CarServiceImpl();
 	private static final CarDaoImpl carDao = CarDaoImpl.getInstance();
 	
 	private CarServiceImpl() {
 	}
 	
 	public static CarServiceImpl getInstance() {
-		return INSTANCE;
+		return instance;
 	}
 
 	@Override
