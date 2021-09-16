@@ -2,13 +2,18 @@ package by.training.carrent.model.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
 
 public interface UserService {
-	Optional<User> registration(User user, String password) throws ServiceException;
+	boolean registerUser(Map<String, String> parametrs) throws ServiceException;
+	
+	Optional<User> findByEmailAndPassword(String email, String hashPassword) throws ServiceException;
+	
+	Optional<User> findByEmail(String email) throws ServiceException;
 	
 	List<User> findAll() throws ServiceException;
 

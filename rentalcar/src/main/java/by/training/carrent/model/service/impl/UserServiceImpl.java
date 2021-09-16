@@ -15,10 +15,7 @@ import by.training.carrent.model.dao.ColumnName;
 import by.training.carrent.model.dao.impl.UserDaoImpl;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.UserService;
-import by.training.carrent.model.validator.CustomEmailValidator;
-import by.training.carrent.model.validator.NameValidator;
-import by.training.carrent.model.validator.PasswordValidator;
-import by.training.carrent.model.validator.PhoneNumberValidator;
+import by.training.carrent.model.validator.InputDataValidator;
 import by.training.carrent.util.HashGenerator;
 
 public class UserServiceImpl implements UserService {
@@ -43,10 +40,11 @@ public class UserServiceImpl implements UserService {
 		String lastName = parametrs.get(ColumnName.USER_LAST_NAME);
 		String dateOfBirth = parametrs.get(ColumnName.USER_DATE_OF_BIRTH);
 		String phoneNumber = parametrs.get(ColumnName.USER_PHONE_NUMBER);
+		InputDataValidator validator = InputDataValidator.INSTANCE;
 		
-		if (CustomEmailValidator.INSTANCE.isValid(email) && PasswordValidator.INSTANCE.isValid(password)
-				&& NameValidator.INSTANCE.isValid(firstName) && NameValidator.INSTANCE.isValid(lastName)
-				&& PhoneNumberValidator.INSTANCE.isValid(phoneNumber)) {
+		if (validator.isEmailValid(email) && validator.isPasswordValid(password) && 
+				validator.isNameValid(firstName) && validator.isNameValid(lastName) &&
+				validator.isPhoneNumberValid(phoneNumber)) {
 			
 			HashGenerator hashGenerator = HashGenerator.getInstance();
 			String hashPassword = hashGenerator.generatePasswordHash(parametrs.get(ColumnName.USER_PASSWORD));
