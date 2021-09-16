@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.ServiceException;
 
-//TODO
 
 public class EmailSender {
 	private static final Logger logger = LogManager.getLogger();
@@ -27,8 +26,9 @@ public class EmailSender {
 	private static final String MAIL_PROPERTIES_PATH = "properties/mail.properties";
 	private static final String USER_KEY = "mail.user.user";
 	private static final String PASSWORD_KEY = "mail.user.password";
-	private static final String TITLE_MAIL = "Message from car rent";         // TODO
 	private static final String MAIL_CONTENT_TYPE = "text/html";
+	private static final String TITLE_MAIL = "Registration message from car rental";
+    private static final String MESSAGE_TEXT = "Your registration confirmation code: ";
 	
 	private EmailSender() {
 	}
@@ -37,14 +37,14 @@ public class EmailSender {
 		return INSTANCE;
 	}
 
-	public boolean sendMail(String emailTo, String addres) throws ServiceException {
+	public boolean sendMail(String emailTo, String code) throws ServiceException {
 		logger.log(Level.INFO, "method senMail");
-		boolean result = false;
+		boolean result;
 		Properties properties = new Properties();
 		try {
-			InputStream inputStream = Thread.currentThread().getContextClassLoader()
+			InputStream inputStream = EmailSender.class.getClassLoader()
 					.getResourceAsStream(MAIL_PROPERTIES_PATH);
-			if (inputStream == null) {                            // TODO exception or only logger??
+			if (inputStream == null) {
 				logger.log(Level.ERROR, "properties for mail is not found : {}", MAIL_PROPERTIES_PATH);
 				throw new ServiceException("Error. Properties for mail is not found");
 			}
@@ -62,12 +62,13 @@ public class EmailSender {
 			message.setFrom(new InternetAddress(user));
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailTo));
 			message.setSubject(TITLE_MAIL);
-			message.setContent("Hello!", MAIL_CONTENT_TYPE);               // TODO message content
+			message.setContent(MESSAGE_TEXT.concat(code), MAIL_CONTENT_TYPE);
 			Transport.send(message);
 			result = true;
 			logger.log(Level.INFO, "message was sent");
 		} catch (MessagingException e) {
 			logger.log(Level.ERROR, "Email did not send ", e);
+			result = false;
 		}
 		return result;
 	}

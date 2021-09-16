@@ -31,7 +31,7 @@ public class HashGenerator {
 			logger.log(Level.ERROR, "Algorithm is not found", e);
 		}
 		String result = conventBytesToString(passwordBytes);
-		logger.log(Level.INFO, "password hash - {}", result);
+		logger.log(Level.INFO, "password has been hashed");
 		return result;
 	}
 
