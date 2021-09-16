@@ -9,8 +9,8 @@
 	</welcome-file-list>
 
 	<error-page>
-	<!--	<error-code>404</error-code> -->
-		<exception-type>java.lang.NumberFormatException</exception-type>
+		<error-code>404</error-code> 
+	<!--	<exception-type>java.lang.NumberFormatException</exception-type>-->
 		<location>/pages/error.jsp</location>
 	</error-page>
 </web-app>
