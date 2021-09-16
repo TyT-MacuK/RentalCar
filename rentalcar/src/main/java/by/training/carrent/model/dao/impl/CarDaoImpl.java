@@ -25,7 +25,7 @@ public class CarDaoImpl implements CarDao {
 //TODO method remove
 	
 	private static final Logger logger = LogManager.getLogger();
-	private static final CarDaoImpl INSTANCE = new CarDaoImpl();
+	private static final CarDaoImpl instance = new CarDaoImpl();
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_CAR = """
@@ -153,7 +153,7 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	public static CarDaoImpl getInstance() {
-		return INSTANCE;
+		return instance;
 	}
 
 	public boolean add(Car car) throws DaoException {

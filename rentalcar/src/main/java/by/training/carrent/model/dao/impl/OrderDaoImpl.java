@@ -24,7 +24,7 @@ import by.training.carrent.model.entity.Order;
 
 public class OrderDaoImpl implements OrderDao {
 	private static final Logger logger = LogManager.getLogger();
-	private static final OrderDaoImpl INSTANCE = new OrderDaoImpl();
+	private static final OrderDaoImpl instance = new OrderDaoImpl();
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_ORDER = """
@@ -67,7 +67,7 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	public static OrderDaoImpl getInstance() {
-		return INSTANCE;
+		return instance;
 	}
 	
 	public boolean add(Order order) throws DaoException {

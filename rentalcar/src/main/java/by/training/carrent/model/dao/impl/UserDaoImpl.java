@@ -25,7 +25,7 @@ import by.training.carrent.model.entity.User;
 
 public class UserDaoImpl implements UserDao {
 	private static final Logger logger = LogManager.getLogger();
-	private static final UserDaoImpl INSTANCE = new UserDaoImpl();
+	private static final UserDaoImpl instance = new UserDaoImpl();
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_USER = """
@@ -82,7 +82,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	public static UserDaoImpl getInstance() {
-		return INSTANCE;
+		return instance;
 	}
 
 	public boolean add(User user, String password) throws DaoException {
@@ -101,8 +101,8 @@ public class UserDaoImpl implements UserDao {
 			statement.setLong(9, user.getRole().ordinal() + 1);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method add()", e);
-			throw new DaoException("Exception when add user", e);
+			logger.log(Level.ERROR, "exception in method add(): {}", e);
+			throw new DaoException("Exception when add user: {}" , e);
 		}
 		return result;
 	}
