@@ -6,21 +6,21 @@ import java.sql.SQLException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//TODO ConnectionPool
-//TODO releaseConnection
+
 public class ConnectionPool {
 	private static final Logger logger = LogManager.getLogger();
 	private static ConnectionPool instance;
 	private static final int CONNECTION_POOL_SIZE = 4;
-	private static final AtomicBoolean isConnectionPoolCreated = new AtomicBoolean();
+	private static final AtomicBoolean isInitialized = new AtomicBoolean();
 	private BlockingQueue<ProxyConnection> freeConnections;
 	private BlockingQueue<ProxyConnection> givenAwayConnections;
-	private final ReentrantLock locker = new ReentrantLock();
+	private static final Lock locker = new ReentrantLock();
 
 	private ConnectionPool() {
 		freeConnections = new LinkedBlockingQueue<>(CONNECTION_POOL_SIZE);
@@ -28,12 +28,14 @@ public class ConnectionPool {
 		initializeConnectionPool();
 	}
 
-	public static ConnectionPool getInstance() {//TODO
-		while (instance == null) {
-			if (isConnectionPoolCreated.compareAndExchange(false, true)) {
+	public static ConnectionPool getInstance() {
+		if (!isInitialized.get()) {
+			locker.lock();
+			if (instance == null) {
 				instance = new ConnectionPool();
 				logger.log(Level.INFO, "Connection pool was created");
 			}
+			locker.unlock();
 		}
 		return instance;
 	}
@@ -50,7 +52,7 @@ public class ConnectionPool {
 		return proxyConnection;
 	}
 
-	public boolean releaseConnection(Connection connection) { //TODO semafor
+	public boolean releaseConnection(Connection connection) {
 		boolean result = false;
 		if (connection instanceof ProxyConnection && givenAwayConnections.remove(connection)) {
 			try {
@@ -85,13 +87,13 @@ public class ConnectionPool {
 	}
 
 	private void deregisterDrivers() {
-		DriverManager.getDrivers().asIterator().forEachRemaining(driver -> {
-			try {
-				DriverManager.deregisterDriver(driver);
-			} catch (SQLException e) {
-				logger.log(Level.ERROR, "Can not deregister driver", e);
+		try {
+			while(DriverManager.getDrivers().hasMoreElements()) {
+				DriverManager.deregisterDriver(DriverManager.getDrivers().nextElement());
 			}
-		});
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "Can not deregister driver", e);
+		}
 	}
 
 	private void initializeConnectionPool() {

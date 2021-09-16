@@ -21,7 +21,7 @@ class ConnectionFactory {
 
 	static {
 		try {
-			InputStream inputStream = Thread.currentThread().getContextClassLoader()
+			InputStream inputStream = ConnectionFactory.class.getClassLoader()
 					.getResourceAsStream(DATABASE_PROPERTY_PATH);
 			if (inputStream == null) {
 				logger.log(Level.FATAL, "properties for connection to data base is not found : {}",
@@ -39,7 +39,8 @@ class ConnectionFactory {
 				logger.log(Level.FATAL, "driver class name does not found");
 				throw new RuntimeException("Fatal error. Driver class name does not found");
 			}
-		} catch (IOException e) {
+			Class.forName(driver);
+		} catch (IOException | ClassNotFoundException e) {
 			logger.log(Level.FATAL, "file cannot be read", e);
 			throw new RuntimeException("Fatal error. Properties file cannot be read", e);
 		}
@@ -49,7 +50,7 @@ class ConnectionFactory {
 	}
 
 	static Connection createConnection() throws SQLException {
-		Connection connection = DriverManager.getConnection(urlDb, properties); 
+		Connection connection = DriverManager.getConnection(urlDb, properties);
 		return new ProxyConnection(connection);
 	}
 }
