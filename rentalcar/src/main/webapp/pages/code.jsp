@@ -8,18 +8,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
-<script
-	src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-<title><fmt:message
-		key="register.title_confirmation_of_registration" /></title>
+<%@ include file="/css/links_to_bootstrap.jsp"%>
+<title><fmt:message	key="register.title_confirmation_of_registration" /></title>	
 </head>
 <body>
 	<div class="container">
 		<div class="row justify-content-md-center">
 			<div class="col col-lg-6 mt-3">
-				<form action="controller" method="post">
+				<form action="${pageContext.request.contextPath}/controller" method="post">
 				<input type="hidden" name="command" value="code_entry_page">
 					<div class="mb-2">
 						<label for="inputCode" class="form-label">
@@ -28,10 +24,10 @@
 					</div>
 					<br/>
 					<button type="submit" class="btn btn-primary"><fmt:message key="register.submit"/></button>
+					<c:if test = "${entered_code_error}">
+                       <p class="text-danger"> <fmt:message key="register.error.code.message"/></p>
+                    </c:if>
 				</form>
-				<c:if test = "${entered_code_error}">
-                    <p class="text-danger"> <fmt:message key="register.error.code.message"/></p>
-                </c:if>
 			</div>
 		</div>
 	</div>

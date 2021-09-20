@@ -7,19 +7,45 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class HashGenerator.
+ */
 public class HashGenerator {
+	
+	/** The Constant logger. */
 	private static final Logger logger = LogManager.getLogger();
+	
+	/** The Constant INSTANCE. */
 	private static final HashGenerator INSTANCE = new HashGenerator();
+	
+	/** The Constant ALGORITHM_SHA256. */
 	private static final String ALGORITHM_SHA256 = "SHA-256";
+	
+	/** The Constant HEXADECIMAL_FORMAT. */
 	private static final String HEXADECIMAL_FORMAT = "%02x";
 
+	/**
+	 * Instantiates a new hash generator.
+	 */
 	private HashGenerator() {
 	}
 	
+	/**
+	 * Gets the single instance of HashGenerator.
+	 *
+	 * @return single instance of HashGenerator
+	 */
 	public static HashGenerator getInstance() {
 		return INSTANCE;
 	}
 
+	/**
+	 * Generate password hash.
+	 *
+	 * @param password
+	 * @return string
+	 */
 	public String generatePasswordHash(String password) {
 		logger.log(Level.INFO, "method generatePasswordHash()");
 		byte[] passwordBytes = null;
@@ -35,6 +61,12 @@ public class HashGenerator {
 		return result;
 	}
 
+	/**
+	 * Convent bytes to string.
+	 *
+	 * @param passwordBytes
+	 * @return string
+	 */
 	private static String conventBytesToString(byte[] passwordBytes) {
 		StringBuilder builder = new StringBuilder();
 		for (byte b : passwordBytes) {

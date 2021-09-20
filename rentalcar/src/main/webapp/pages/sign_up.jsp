@@ -8,27 +8,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
-<script
-	src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-<title><fmt:message key="register.title" /></title>
+<%@ include file="/css/links_to_bootstrap.jsp"%>
+<title><fmt:message key="register.title"/></title>
 </head>
-
 <body>
-	  <div class="container">
-	     <ul class="nav justify-content-end"> 
-           <li class="nav-item">
-              <button type="button" class="btn btn-link">Ru</button>
-           </li>
-           <li class="nav-item">
-               <button type="button" class="btn btn-link">En</button>
-           </li>
-         </ul>					
+	  <div class="container"> 
+	  <%@ include file="/pages/parts/navbar.jsp"%>
 		<div class="row justify-content-md-center">
 			<div class="col col-lg-6 mt-3">
 				<h3 class="text-center"><fmt:message key="register.heading"/></h3>
-				<form action="controller" method="post">
+				<form action="${pageContext.request.contextPath}/controller" method="post">
 				<input type="hidden" name="command" value="sign_up_page">
 					<div class="mb-2">
 						<label for="inputEmail1" class="form-label"><fmt:message key="register.email_field"/></label>

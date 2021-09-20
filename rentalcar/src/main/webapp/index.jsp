@@ -4,6 +4,6 @@
 <title>Index</title>
 </head>
 <body>
-	<jsp:forward page="/pages/sign_up.jsp"/>
+	<jsp:forward page="/controller?command=to_home_page_command"/>
 </body>
 </html>
