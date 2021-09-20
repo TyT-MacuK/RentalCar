@@ -29,10 +29,10 @@ public class UserDaoImpl implements UserDao {
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_USER = """
-			INSERT INTO users (email, password, first_name, last_name, discount,
+			INSERT INTO users (email, password, password_for_authentication, first_name, last_name, discount,
 			 phone_number, date_of_birth, user_status_id, user_role_id)
 			VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			""";
 	private static final String SQL_FIND_ALL = """
 			SELECT user_id, email, first_name, last_name, discount, phone_number,
@@ -57,13 +57,13 @@ public class UserDaoImpl implements UserDao {
 			 JOIN user_role ON users.user_role_id = user_role.role_id
 			 WHERE email = ?;
 			""";
-	private static final String SQL_FIND_BY_EMAIL_AND_PASSWORD = """
+	private static final String SQL_FIND_BY_PASSWORD_FOR_AUTHENTICATION = """
 			SELECT user_id, email, first_name, last_name, discount, phone_number,
 			 date_of_birth, user_status.user_status, user_role.role
 			 FROM users
 			 JOIN user_status ON users.user_status_id = user_status.user_status_id
 			 JOIN user_role ON users.user_role_id = user_role.role_id
-			 WHERE email = ? AND password = ?;
+			 WHERE password_for_authentication = ?;
 			""";
 	private static final String SQL_FIND_BY_DATE_OF_BIRTH = """
 			SELECT user_id, email, first_name, last_name, discount, phone_number,
@@ -73,6 +73,7 @@ public class UserDaoImpl implements UserDao {
 			 JOIN user_role ON users.user_role_id = user_role.role_id
 			 WHERE date_of_birth = ?;
 			""";
+	private static final String SQL_REMOVE_PASSWORD_FOR_AUTHENTICATION = "UPDATE users SET password_for_authentication = ? WHERE password_for_authentication = ?";
 	private static final String SQL_UPDATE_EMAIL = "UPDATE users SET email = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_DISCOUNT = "UPDATE users SET discount = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_PHONE_NUMBER = "UPDATE users SET phone_number = ? WHERE user_id = ?";
@@ -84,21 +85,23 @@ public class UserDaoImpl implements UserDao {
 	public static UserDaoImpl getInstance() {
 		return instance;
 	}
-
-	public boolean add(User user, String password) throws DaoException {
+	
+	@Override
+	public boolean add(User user, String password, String passwordForAuthentication) throws DaoException {
 		logger.log(Level.INFO, "method add()");
 		boolean result = false;
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_CREATE_USER)) {
 			statement.setString(1, user.getEmail());
 			statement.setString(2, password);
-			statement.setString(3, user.getFirstName());
-			statement.setString(4, user.getLastName());
-			statement.setInt(5, user.getDiscont());
-			statement.setString(6, user.getPhoneNumber());
-			statement.setDate(7, Date.valueOf(user.getDateOfBirth()));
-			statement.setLong(8, user.getStatus().ordinal() + 1);
-			statement.setLong(9, user.getRole().ordinal() + 1);
+			statement.setString(3, passwordForAuthentication);
+			statement.setString(4, user.getFirstName());
+			statement.setString(5, user.getLastName());
+			statement.setInt(6, user.getDiscont());
+			statement.setString(7, user.getPhoneNumber());
+			statement.setDate(8, Date.valueOf(user.getDateOfBirth()));
+			statement.setLong(9, user.getStatus().ordinal() + 1);
+			statement.setLong(10, user.getRole().ordinal() + 1);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method add(): {}", e);
@@ -134,15 +137,14 @@ public class UserDaoImpl implements UserDao {
 		}
 		return result;
 	}
-
+	
 	@Override
-	public Optional<User> findByEmailAndPassword(String email, String password) throws DaoException {
-		logger.log(Level.INFO, "method findByEmailAndPassword()");
+	public Optional<User> findByPasswordForAuthentication(String passwordForAuthentication) throws DaoException {
+		logger.log(Level.INFO, "method findByPasswordForAuthentication()");
 		Optional<User> result = Optional.empty();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_EMAIL_AND_PASSWORD)) {
-			statement.setString(1, email);
-			statement.setString(2, password);
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_PASSWORD_FOR_AUTHENTICATION)) {
+			statement.setString(1, passwordForAuthentication);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
@@ -158,8 +160,8 @@ public class UserDaoImpl implements UserDao {
 				}
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByEmailAndPassword()", e);
-			throw new DaoException("Exception when find user by email and password", e);
+			logger.log(Level.ERROR, "exception in method findByPasswordForAuthentication()", e);
+			throw new DaoException("Exception when find user by password for authentication", e);
 		}
 		return result;
 	}
@@ -250,6 +252,22 @@ public class UserDaoImpl implements UserDao {
 		return listUsers;
 	}
 
+	@Override
+	public boolean removePasswordForAuthentication(String passwordForAuthentication) throws DaoException {
+		logger.log(Level.INFO, "method removePasswordForAuthentication()");
+		boolean result = false;
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_PASSWORD_FOR_AUTHENTICATION)) {
+			statement.setString(2, passwordForAuthentication);
+			statement.setString(1, null);
+			result = statement.executeUpdate() > 0;
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method removePasswordForAuthentication()", e);
+			throw new DaoException("Exception when remove password for authentication", e);
+		}
+		return result;
+	}
+	
 	@Override
 	public boolean updateEmail(long userId, String email) throws DaoException {
 		logger.log(Level.INFO, "method updateEmail()");

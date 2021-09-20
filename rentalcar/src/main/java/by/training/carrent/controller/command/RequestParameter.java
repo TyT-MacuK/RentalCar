@@ -14,6 +14,7 @@ public final class RequestParameter {
 	    
 	    public static final String CODE = "code";
 	    public static final String COMMAND = "command";	
+	    
 	
 	private RequestParameter () {
 	}

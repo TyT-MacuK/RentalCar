@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.controller.command.Command;
-import by.training.carrent.controller.command.PageUrl;
+import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.RequestParameter;
 import by.training.carrent.controller.command.SessionAttribute;
 import by.training.carrent.exception.ServiceException;
@@ -39,29 +39,28 @@ public class SignUpPageCommand implements Command {
 		parameters.put(ColumnName.USER_LAST_NAME, request.getParameter(USER_LAST_NAME));
 		parameters.put(ColumnName.USER_DATE_OF_BIRTH, request.getParameter(USER_DATE_OF_BIRTH));
 		parameters.put(ColumnName.USER_PHONE_NUMBER, request.getParameter(USER_PHONE_NUMBER));
+		RegisterCodeGenerator codeGenerator = RegisterCodeGenerator.getInstance();
+		String hashPassword = codeGenerator.generateCode();
+		parameters.put(ColumnName.USER_PASSWORD_FOR_AUTHENTICATION, hashPassword);
 		try {
 			Optional<User> user = service.findByEmail(parameters.get(ColumnName.USER_EMAIL));
 			if (!user.isPresent()) {		
-				if (service.registerUser(parameters)) {
-					RegisterCodeGenerator codeGenerator = RegisterCodeGenerator.getInstance();
-					String code = codeGenerator.generateCode();
-					request.getSession().setAttribute(SessionAttribute.GENERATE_CODE, code);
-					request.getSession().setAttribute(SessionAttribute.USER_EMAIL, parameters.get(ColumnName.USER_EMAIL));
+				if (service.registerUser(parameters)) {					
 					EmailSender emailSender = EmailSender.getInstance(); 
-					emailSender.sendMail(parameters.get(ColumnName.USER_EMAIL), code);
-					router = new Router(Router.RouterType.FORWARD, PageUrl.CODE_PAGE);
+					emailSender.sendMail(parameters.get(ColumnName.USER_EMAIL), hashPassword);
+					router = new Router(PagePath.HOME_PAGE);
 					logger.log(Level.INFO, "user was registered but do not enter a code");
 				} else {
 					logger.log(Level.ERROR, "error during registration user");
-					router = new Router(Router.RouterType.FORWARD, PageUrl.ERROR_500_PAGE);
+					router = new Router(PagePath.ERROR_500_PAGE);
 				}
 			} else {
 				logger.log(Level.INFO, "user with this email was registered");
-				router = new Router(Router.RouterType.FORWARD, PageUrl.DEFAULT_PAGE);
+				router = new Router(PagePath.HOME_PAGE);
 			}
 		} catch (ServiceException e) {
 			logger.log(Level.ERROR, "error during registration user: ", e);
-			router = new Router(Router.RouterType.FORWARD, PageUrl.ERROR_500_PAGE);
+			router = new Router(PagePath.ERROR_500_PAGE);
 		}
 		return router;
 	}

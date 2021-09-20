@@ -6,27 +6,27 @@ public class Router {
 	}
 
 	private RouterType type;
-	private String pageUri;
+	private String pagePath;
 
-	public Router(RouterType type, String pageUri) {
-		this.type = type;
-		this.pageUri = pageUri;
+	public Router(String pagePath) {
+		type = RouterType.FORWARD;
+		this.pagePath = pagePath;
 	}
 
 	public RouterType getType() {
 		return type;
 	}
 
-	public void setType(RouterType type) {
-		this.type = type;
+	public void setRedirect() {
+		type = RouterType.REDIRECT;
 	}
 
-	public String getPageUri() {
-		return pageUri;
+	public String getPagePath() {
+		return pagePath;
 	}
 
-	public void setPageUri(String pageUri) {
-		this.pageUri = pageUri;
+	public void setPageUri(String pagePath) {
+		this.pagePath = pagePath;
 	}
 
 }
