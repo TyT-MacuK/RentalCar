@@ -16,7 +16,13 @@ public interface UserDao extends BaseDao<Long, User> {// TODO role update
 	
 	Optional<User> findByEmail(String email) throws DaoException;
 	
+	Optional<User> findByEmailAndPassword(String email, String password) throws DaoException;
+	
 	boolean removePasswordForAuthentication(String passwordForAuthentication) throws DaoException;
+	
+	boolean updateFirstName(long userId, String name) throws DaoException;
+	
+	boolean updateLastName(long userId, String name) throws DaoException;
 
 	boolean updateEmail(long userId, String email) throws DaoException;
 
