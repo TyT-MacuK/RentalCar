@@ -7,12 +7,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.controller.command.impl.CodeEntryPageCommand;
+import by.training.carrent.controller.command.impl.SignInPageCommand;
+import by.training.carrent.controller.command.impl.SignOutCommand;
 import by.training.carrent.controller.command.impl.SignUpPageCommand;
+import by.training.carrent.controller.command.impl.change.ChangeFirstNameCommand;
 import by.training.carrent.controller.command.impl.change.ChangeLanguageToEnglishCommand;
 import by.training.carrent.controller.command.impl.change.ChangeLanguageToRussianCommand;
 import by.training.carrent.controller.command.impl.page.GoToCodeEnteryPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToErrorPageCommand;
+import by.training.carrent.controller.command.impl.page.GoToChangeFirstNamePageCommand;
 import by.training.carrent.controller.command.impl.page.GoToHomePageCommand;
+import by.training.carrent.controller.command.impl.page.GoToPersonalProfilePageCommand;
+import by.training.carrent.controller.command.impl.page.GoToSignInPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToSignUpPageCommand;
 
 import static by.training.carrent.controller.command.CommandType.*;
@@ -23,16 +29,20 @@ public class CommandProvider {
 	private final EnumMap<CommandType, Command> commands = new EnumMap(CommandType.class);
 
 	private CommandProvider() {
+		commands.put(TO_HOME_PAGE_COMMAND, new GoToHomePageCommand());
 		commands.put(SIGN_UP_PAGE, new SignUpPageCommand());
 		commands.put(TO_SIGN_UP_PAGE_COMMAND, new GoToSignUpPageCommand());
 		commands.put(CODE_ENTRY_PAGE, new CodeEntryPageCommand());
+		commands.put(TO_CODE_ENTERY_PAGE_COMMAND, new GoToCodeEnteryPageCommand());
+		commands.put(SIGN_IN_PAGE, new SignInPageCommand());
+		commands.put(TO_SIGN_IN_PAGE_COMMAND, new GoToSignInPageCommand());
+		commands.put(SIGN_OUT_COMMAND, new SignOutCommand());
+		commands.put(TO_PERSONAL_PROFILE_PAGE_COMMAND, new GoToPersonalProfilePageCommand());
 		commands.put(TO_ERROR_PAGE, new GoToErrorPageCommand());
 		commands.put(CHANGE_LANGUAGE_TO_ENGLISH_COMMAND, new ChangeLanguageToEnglishCommand());
-		commands.put(CHANGE_LANGUAGE_TO_RUSSIAN_COMMAND, new ChangeLanguageToRussianCommand());
-		
-		commands.put(TO_HOME_PAGE_COMMAND, new GoToHomePageCommand());
-		commands.put(TO_CODE_ENTERY_PAGE_COMMAND, new GoToCodeEnteryPageCommand());
-		
+		commands.put(CHANGE_LANGUAGE_TO_RUSSIAN_COMMAND, new ChangeLanguageToRussianCommand());	
+		commands.put(TO_CHANGE_FIRST_NAME_PAGE_COMMAND, new GoToChangeFirstNamePageCommand());
+		commands.put(CHANGE_FIRST_NAME_PAGE, new ChangeFirstNameCommand());
 	}
 
 	public static CommandProvider getInstance() {
