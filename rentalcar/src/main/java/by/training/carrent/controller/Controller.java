@@ -18,7 +18,7 @@ import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.CommandProvider;
 import by.training.carrent.model.connection.ConnectionPool;
 
-import static by.training.carrent.controller.command.PageUrl.*;
+import static by.training.carrent.controller.command.PagePath.*;
 import static by.training.carrent.controller.command.RequestParameter.*;
 
 @WebServlet("/controller")
@@ -42,16 +42,15 @@ public class Controller extends HttpServlet {
 		Command command = provider.getCommand(commandName);
 		Router router = command.execute(request);
 		switch (router.getType()) {
-		case REDIRECT:
-			response.sendRedirect(router.getPageUri());
-			break;
-		case FORWARD:
-			RequestDispatcher dispatcher = request.getRequestDispatcher(router.getPageUri());
+		case REDIRECT -> response.sendRedirect(router.getPagePath());
+		case FORWARD -> {
+			RequestDispatcher dispatcher = request.getRequestDispatcher(router.getPagePath());
 			dispatcher.forward(request, response);
-			break;
-		default:
+		}
+		default -> {
 			logger.log(Level.ERROR, "unknown router type: {}", router.getType());
 			response.sendRedirect(ERROR_404_PAGE);
+		}
 		}
 	}
 }
