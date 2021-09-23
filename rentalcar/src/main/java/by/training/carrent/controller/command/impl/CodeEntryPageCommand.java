@@ -31,10 +31,10 @@ public class CodeEntryPageCommand implements Command {
 			if (user.isPresent()) {
 				long userId = user.get().getUserId();
 				service.updateStatus(userId, User.UserStatus.ACTIVE.ordinal() + 1);
-				service.removePasswordForAuthentication(enteredCode);
-				logger.log(Level.INFO, "the code is confirmed. Status changed to active");
+				service.updatePasswordForAuthentication(userId, null);
 				router = new Router(PagePath.HOME_PAGE_REDIRECT);
 				router.setRedirect();
+				logger.log(Level.INFO, "the code is confirmed. Status changed to active");
 			} else {
 				logger.log(Level.ERROR, "the entered code is incorrect");
 				request.setAttribute(SessionAttribute.ENTERED_CODE_ERROR, true);
