@@ -1,4 +1,4 @@
-package by.training.carrent.controller.command.impl.change;
+package by.training.carrent.controller.command.impl.page;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -9,20 +9,19 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.controller.Router;
 import by.training.carrent.controller.command.Command;
+import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.SessionAttribute;
 
-public class ChangeLanguageToRussianCommand implements Command {
+public class GoToPersonalProfilePageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
-	private static final String RUSSIAN = "ru";
 
 	@Override
-	public Router execute(HttpServletRequest request) {
+	public Router execute(HttpServletRequest request) {//TODO role
 		logger.log(Level.INFO, "method execute()");
+		Router router;
 		HttpSession session = request.getSession();
-		session.setAttribute(SessionAttribute.LOCALE, RUSSIAN);
-		Router router = new Router(session.getAttribute(SessionAttribute.PREVIOUS_PAGE).toString());
-		router.setRedirect();
-		logger.log(Level.INFO, "language was changed to Russian");
+		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.PERSONAL_PROFILE_REDIRECT);
+		router = new Router(PagePath.PERSONAL_PROFILE_PAGE);
 		return router;
 	}
 

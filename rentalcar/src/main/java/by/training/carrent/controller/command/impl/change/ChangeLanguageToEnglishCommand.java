@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.controller.Router;
 import by.training.carrent.controller.command.Command;
-import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.SessionAttribute;
 
 public class ChangeLanguageToEnglishCommand implements Command {
@@ -19,7 +18,7 @@ public class ChangeLanguageToEnglishCommand implements Command {
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
-		HttpSession session = request.getSession();	
+		HttpSession session = request.getSession();
 		session.setAttribute(SessionAttribute.LOCALE, ENGLISH);
 		Router router = new Router(session.getAttribute(SessionAttribute.PREVIOUS_PAGE).toString());
 		router.setRedirect();

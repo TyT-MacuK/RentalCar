@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.PagePath;
-import by.training.carrent.controller.command.RequestParameter;
-import by.training.carrent.controller.command.SessionAttribute;
 import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.dao.ColumnName;
 import by.training.carrent.model.entity.User;
@@ -44,11 +42,12 @@ public class SignUpPageCommand implements Command {
 		parameters.put(ColumnName.USER_PASSWORD_FOR_AUTHENTICATION, hashPassword);
 		try {
 			Optional<User> user = service.findByEmail(parameters.get(ColumnName.USER_EMAIL));
-			if (!user.isPresent()) {		
-				if (service.registerUser(parameters)) {					
-					EmailSender emailSender = EmailSender.getInstance(); 
+			if (!user.isPresent()) {
+				if (service.registerUser(parameters)) {
+					EmailSender emailSender = EmailSender.getInstance();
 					emailSender.sendMail(parameters.get(ColumnName.USER_EMAIL), hashPassword);
-					router = new Router(PagePath.HOME_PAGE);
+					router = new Router(PagePath.HOME_PAGE_REDIRECT);
+					router.setRedirect();
 					logger.log(Level.INFO, "user was registered but do not enter a code");
 				} else {
 					logger.log(Level.ERROR, "error during registration user");
@@ -56,7 +55,7 @@ public class SignUpPageCommand implements Command {
 				}
 			} else {
 				logger.log(Level.INFO, "user with this email was registered");
-				router = new Router(PagePath.HOME_PAGE);
+				router = new Router(PagePath.SIGN_IN_PAGE);
 			}
 		} catch (ServiceException e) {
 			logger.log(Level.ERROR, "error during registration user: ", e);

@@ -30,10 +30,13 @@ public class GoToHomePageCommand implements Command {
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
 		HttpSession session = request.getSession();
+		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.HOME_PAGE_REDIRECT);
 		if (session.getAttribute(SessionAttribute.LOCALE) == null) {
 			session.setAttribute(SessionAttribute.LOCALE, ENGLISH);
 		}
-		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.HOME_PAGE_REDIRECT);
+		if (session.getAttribute(SessionAttribute.IS_AUTHENTICATED) == null) {
+			session.setAttribute(SessionAttribute.IS_AUTHENTICATED, false);
+		}
 		CarServiceImpl service = CarServiceImpl.getInstance();
 		List<Car> cars = new ArrayList<>();
 		try {
@@ -43,7 +46,7 @@ public class GoToHomePageCommand implements Command {
 			e.printStackTrace();
 		}
 		request.setAttribute("cars", cars);
-        logger.log(Level.INFO, "redirected to home page");
+		logger.log(Level.INFO, "redirected to home page");
 		return new Router(PagePath.HOME_PAGE);
 	}
 

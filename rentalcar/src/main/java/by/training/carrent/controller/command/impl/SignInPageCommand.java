@@ -3,6 +3,7 @@ package by.training.carrent.controller.command.impl;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -12,38 +13,44 @@ import by.training.carrent.controller.Router;
 import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.RequestParameter;
-import by.training.carrent.controller.command.SessionAttribute;
 import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.impl.UserServiceImpl;
 
-public class CodeEntryPageCommand implements Command {
+import static by.training.carrent.controller.command.SessionAttribute.*;
+
+public class SignInPageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
 
 	@Override
 	public Router execute(HttpServletRequest request) {
-		logger.log(Level.INFO, "methed execute()");
+		logger.log(Level.INFO, "method execute()");
 		Router router;
+		HttpSession session = request.getSession();
+		session.setAttribute(PREVIOUS_PAGE, PagePath.SIGN_IN_PAGE_REDIRECT);
+		String email = request.getParameter(RequestParameter.USER_EMAIL);
+		String password = request.getParameter(RequestParameter.USER_PASSWORD);
 		UserServiceImpl service = UserServiceImpl.getInstance();
-		String enteredCode = request.getParameter(RequestParameter.CODE);
 		try {
-			Optional<User> user = service.findByPasswordForAuthentication(enteredCode);
+			Optional<User> user = service.findByEmailAndPassword(email, password);
 			if (user.isPresent()) {
-				long userId = user.get().getUserId();
-				service.updateStatus(userId, User.UserStatus.ACTIVE.ordinal() + 1);
-				service.removePasswordForAuthentication(enteredCode);
-				logger.log(Level.INFO, "the code is confirmed. Status changed to active");
+				User localUser = user.get();
+				if (localUser.getStatus() == User.UserStatus.ACTIVE) {
+					session.setAttribute(USER, localUser);
+					session.setAttribute(IS_AUTHENTICATED, true);
+				}
 				router = new Router(PagePath.HOME_PAGE_REDIRECT);
 				router.setRedirect();
 			} else {
-				logger.log(Level.ERROR, "the entered code is incorrect");
-				request.setAttribute(SessionAttribute.ENTERED_CODE_ERROR, true);
-				router = new Router(PagePath.CODE_PAGE);
+				logger.log(Level.INFO, "user is not found");
+				request.setAttribute(RequestParameter.AUTHENTICATION_ERROR, true);
+				router = new Router(PagePath.SIGN_IN_PAGE);
 			}
 		} catch (ServiceException e) {
-			logger.log(Level.ERROR, "error while entering code", e);
+			logger.log(Level.ERROR, "error during sign in user: ", e);
 			router = new Router(PagePath.ERROR_500_PAGE);
 		}
+		logger.log(Level.INFO, "user signs in the system");
 		return router;
 	}
 }

@@ -10,8 +10,9 @@ import by.training.carrent.controller.Router;
 import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.PagePath;
 
-public class GoToCodeEnteryPageCommand implements Command{
+public class GoToCodeEnteryPageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
+
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
