@@ -36,6 +36,18 @@ public class CarServiceImpl implements CarService {
 			throw new ServiceException("Exception when find all cars", e);
 		}
 	}
+	
+
+	@Override
+	public List<Car> findByLimit(int leftBorder, int numberOfLines) throws ServiceException {
+		logger.log(Level.INFO, "method findByLimit()");
+		try {
+			return carDao.findByLimit(leftBorder, numberOfLines);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new ServiceException("Exception when find cars by limit", e);
+		}
+	}
 
 	@Override
 	public Optional<Car> findById(long carId) throws ServiceException {
@@ -82,17 +94,6 @@ public class CarServiceImpl implements CarService {
 	}
 
 	@Override
-	public List<Car> findByConditioner(boolean conditioner) throws ServiceException {
-		logger.log(Level.INFO, "method findByConditioner()");
-		try {
-			return carDao.findByConditioner(conditioner);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByConditioner()", e);
-			throw new ServiceException("Exception when find car by conditioner", e);
-		}
-	}
-
-	@Override
 	public List<Car> findByCost(BigDecimal cost) throws ServiceException {
 		logger.log(Level.INFO, "method findByCost()");
 		try {
@@ -100,28 +101,6 @@ public class CarServiceImpl implements CarService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method findByCost()", e);
 			throw new ServiceException("Exception when find car by cost", e);
-		}
-	}
-
-	@Override
-	public List<Car> findByClass(String carClass) throws ServiceException {
-		logger.log(Level.INFO, "method findByClass()");
-		try {
-			return carDao.findByClass(carClass);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByClass()", e);
-			throw new ServiceException("Exception when find car by class", e);
-		}
-	}
-
-	@Override
-	public List<Car> findByTransmission(String carTransmission) throws ServiceException {
-		logger.log(Level.INFO, "method findByTransmission()");
-		try {
-			return carDao.findByTransmission(carTransmission);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByTransmission()", e);
-			throw new ServiceException("Exception when find car by transmission", e);
 		}
 	}
 
@@ -177,6 +156,17 @@ public class CarServiceImpl implements CarService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new ServiceException("Exception when update status", e);
+		}
+	}
+
+	@Override
+	public int countCars() throws ServiceException {
+		logger.log(Level.INFO, "method countCars()");
+		try {
+			return carDao.countCars();
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method countCars()", e);
+			throw new ServiceException("Exception when count cars", e);
 		}
 	}
 }

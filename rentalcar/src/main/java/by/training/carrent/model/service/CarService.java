@@ -10,6 +10,8 @@ import by.training.carrent.model.entity.Car;
 public interface CarService {
 	List<Car> findAll() throws ServiceException;
 	
+	List<Car> findByLimit(int leftBorder, int numberOfLines) throws ServiceException;
+	
 	Optional<Car> findById(long carId) throws ServiceException;
 	
 	List<Car> findByModel(String model) throws ServiceException;
@@ -18,13 +20,7 @@ public interface CarService {
 
 	List<Car> findByYear(int year) throws ServiceException;
 
-	List<Car> findByConditioner(boolean conditioner) throws ServiceException;
-
 	List<Car> findByCost(BigDecimal cost) throws ServiceException;
-
-	List<Car> findByClass(String carClass) throws ServiceException;
-
-	List<Car> findByTransmission(String carTransmission) throws ServiceException;
 
 	List<Car> findByManufacture(String carManufacturer) throws ServiceException;
 
@@ -35,4 +31,6 @@ public interface CarService {
 	boolean updateCost(long carId, BigDecimal cost) throws ServiceException;
 
 	boolean updateStatus(long carId, long carStatusId) throws ServiceException;
+	
+	int countCars() throws ServiceException;
 }
