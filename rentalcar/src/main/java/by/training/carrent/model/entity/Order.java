@@ -1,9 +1,8 @@
 package by.training.carrent.model.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Order.
  */
@@ -13,20 +12,25 @@ public class Order extends AbstractEntity {
 	 * The Enum OrderStatus.
 	 */
 	public enum OrderStatus {
-		PAID, AWAITS_PAYMENT, DECLINED
+		PAID,
+		AWAITS_PAYMENT,
+		DECLINED
 	}
 
 	/** The order id. */
 	private long orderId;
+	
+	/** The order number. */
+	private String orderNumber;
 
 	/** The price. */
 	private BigDecimal price;
 
 	/** The pick up date. */
-	private LocalDateTime pickUpDate;
+	private LocalDate pickUpDate;
 
 	/** The return date. */
-	private LocalDateTime returnDate;
+	private LocalDate returnDate;
 
 	/** The status. */
 	private OrderStatus status;
@@ -54,9 +58,10 @@ public class Order extends AbstractEntity {
 	 * @param carId      the car id
 	 * @param userId     the user id
 	 */
-	public Order(long orderId, BigDecimal price, LocalDateTime pickUpDate, LocalDateTime returnDate, OrderStatus status,
+	public Order(long orderId, String orderNumber, BigDecimal price, LocalDate pickUpDate, LocalDate returnDate, OrderStatus status,
 			long carId, long userId) {
 		this.orderId = orderId;
+		this.orderNumber = orderNumber;
 		this.price = price;
 		this.pickUpDate = pickUpDate;
 		this.returnDate = returnDate;
@@ -82,6 +87,24 @@ public class Order extends AbstractEntity {
 	public void setOrderId(long orderId) {
 		this.orderId = orderId;
 	}
+	
+	/**
+	 * Gets the order number.
+	 *
+	 * @return the order number
+	 */
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	/**
+	 * Sets the order number.
+	 *
+	 * @param orderNumber the new order number
+	 */
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
+	}
 
 	/**
 	 * Gets the price.
@@ -106,7 +129,7 @@ public class Order extends AbstractEntity {
 	 *
 	 * @return the pick up date
 	 */
-	public LocalDateTime getPickUpDate() {
+	public LocalDate getPickUpDate() {
 		return pickUpDate;
 	}
 
@@ -115,7 +138,7 @@ public class Order extends AbstractEntity {
 	 *
 	 * @param pickUpDate the new pick up date
 	 */
-	public void setPickUpDate(LocalDateTime pickUpDate) {
+	public void setPickUpDate(LocalDate pickUpDate) {
 		this.pickUpDate = pickUpDate;
 	}
 
@@ -124,7 +147,7 @@ public class Order extends AbstractEntity {
 	 *
 	 * @return the return date
 	 */
-	public LocalDateTime getReturnDate() {
+	public LocalDate getReturnDate() {
 		return returnDate;
 	}
 
@@ -133,7 +156,7 @@ public class Order extends AbstractEntity {
 	 *
 	 * @param returnDate the new return date
 	 */
-	public void setReturnDate(LocalDateTime returnDate) {
+	public void setReturnDate(LocalDate returnDate) {
 		this.returnDate = returnDate;
 	}
 
@@ -200,6 +223,7 @@ public class Order extends AbstractEntity {
 		int prime = 31;
 		int result = 1;
 		result = prime * result + Long.hashCode(orderId);
+		result = prime * result + orderNumber.hashCode();
 		result = prime * result + price.hashCode();
 		result = prime * result + pickUpDate.hashCode();
 		result = prime * result + returnDate.hashCode();
@@ -227,6 +251,13 @@ public class Order extends AbstractEntity {
 		}
 		Order order = (Order) object;
 		if (orderId != order.orderId) {
+			return false;
+		}
+		if (orderNumber == null) {
+			if (order.orderNumber != null) {
+				return false;
+			}
+		} else if (!orderNumber.equals(order.orderNumber)) {
 			return false;
 		}
 		if (price == null) {
@@ -267,6 +298,7 @@ public class Order extends AbstractEntity {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("[Order : id = ").append(orderId);
+		builder.append(", order number = ").append(orderNumber);
 		builder.append(", price = ").append(price);
 		builder.append(", pick up date = ").append(pickUpDate);
 		builder.append(", return date = ").append(returnDate);
@@ -302,6 +334,17 @@ public class Order extends AbstractEntity {
 			order.setOrderId(orderId);
 			return this;
 		}
+		
+		/**
+		 * Sets the order number.
+		 *
+		 * @param orderNumber the order number
+		 * @return the builder
+		 */
+		public Builder setOrderNumber(String orderNumber) {
+			order.setOrderNumber(orderNumber);
+			return this;
+		}
 
 		/**
 		 * Sets the price.
@@ -320,7 +363,7 @@ public class Order extends AbstractEntity {
 		 * @param pickUpDate the pick up date
 		 * @return the builder
 		 */
-		public Builder setPickUpDate(LocalDateTime pickUpDate) {
+		public Builder setPickUpDate(LocalDate pickUpDate) {
 			order.setPickUpDate(pickUpDate);
 			return this;
 		}
@@ -331,7 +374,7 @@ public class Order extends AbstractEntity {
 		 * @param returnDate the return date
 		 * @return the builder
 		 */
-		public Builder setReturnDate(LocalDateTime returnDate) {
+		public Builder setReturnDate(LocalDate returnDate) {
 			order.setReturnDate(returnDate);
 			return this;
 		}

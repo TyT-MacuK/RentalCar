@@ -2,37 +2,39 @@ package by.training.carrent.model.entity;
 
 import java.math.BigDecimal;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Car.
  */
 public class Car extends AbstractEntity {
 
 	/**
-	 * The Enum CarClass.
-	 */
-	public enum CarClass {//TODO ????
-		ECONOMY, STANDARD, PREMIUM, MINIVAN
-	}
-
-	/**
 	 * The Enum CarTransmission.
 	 */
 	public enum CarTransmission {
-		AUTOMATIC, MANUAL
+		AUTOMATIC, 
+		MANUAL
 	}
 
 	/**
 	 * The Enum CarManufacturer.
 	 */
 	public enum CarManufacturer {
-		VOLKSWAGEN, SKODA, RENAULT, TOYOTA, AUDI, MAZDA, MERCEDES
+		VOLKSWAGEN, 
+		SKODA, 
+		RENAULT,  
+		MAZDA, 
+		MERCEDES
 	}
 
 	/**
 	 * The Enum CarStatus.
 	 */
 	public enum CarStatus {
-		RENTED, FREE, CAR_IS_SERVICED, IMPOSSIBLE_TO_RENT
+		BOOKED,  
+		FREE, 
+		CAR_IS_SERVICED, 
+		IMPOSSIBLE_TO_RENT
 	}
 
 	/** The car id. */
@@ -52,9 +54,9 @@ public class Car extends AbstractEntity {
 
 	/** The cost. */
 	private BigDecimal cost;
-
-	/** The car class. */
-	private CarClass carClass;
+	
+	/** The image url. */
+	private String imageUrl; 
 
 	/** The car transmission. */
 	private CarTransmission carTransmission;
@@ -80,20 +82,21 @@ public class Car extends AbstractEntity {
 	 * @param year            the year
 	 * @param conditioner     the presence of the conditioner
 	 * @param cost            the cost
+	 * @param imageUrl        the image url
 	 * @param carClass        the car class
 	 * @param carTransmission the car transmission
 	 * @param carManufacturer the car manufacturer
 	 * @param carStatus       the car status
 	 */
-	public Car(long carId, String model, int discount, int year, boolean conditioner, BigDecimal cost,
-			CarClass carClass, CarTransmission carTransmission, CarManufacturer carManufacturer, CarStatus carStatus) {
+	public Car(long carId, String model, int discount, int year, boolean conditioner, BigDecimal cost, String imageUrl,
+			CarTransmission carTransmission, CarManufacturer carManufacturer, CarStatus carStatus) {
 		this.carId = carId;
 		this.model = model;
 		this.discount = discount;
 		this.year = year;
 		this.conditioner = conditioner;
 		this.cost = cost;
-		this.carClass = carClass;
+		this.imageUrl = imageUrl;
 		this.carTransmission = carTransmission;
 		this.carManufacturer = carManufacturer;
 		this.carStatus = carStatus;
@@ -208,21 +211,21 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the car class.
+	 * Gets the image url.
 	 *
-	 * @return the car class
+	 * @return the image url
 	 */
-	public CarClass getCarClass() {
-		return carClass;
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
 	/**
-	 * Sets the car class.
+	 * Sets the image url.
 	 *
-	 * @param carClass the new car class
+	 * @param imageUrl the new image url
 	 */
-	public void setCarClass(CarClass carClass) {
-		this.carClass = carClass;
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	/**
@@ -293,7 +296,7 @@ public class Car extends AbstractEntity {
 		result = prime * result + year;
 		result = prime * result + Boolean.hashCode(conditioner);
 		result = prime * result + (cost != null ? cost.hashCode() : 0);
-		result = prime * result + (carClass != null ? carClass.hashCode() : 0);
+		result = prime * result + (imageUrl != null ? imageUrl.hashCode() : 0);
 		result = prime * result + (carTransmission != null ? carTransmission.hashCode() : 0);
 		result = prime * result + (carManufacturer != null ? carManufacturer.hashCode() : 0);
 		result = prime * result + (carStatus != null ? carStatus.hashCode() : 0);
@@ -303,7 +306,7 @@ public class Car extends AbstractEntity {
 	/**
 	 * Equals.
 	 *
-	 * @param object
+	 * @param object the object
 	 * @return true, if successful
 	 */
 	public boolean equals(Object object) {
@@ -343,7 +346,14 @@ public class Car extends AbstractEntity {
 		} else if (!cost.equals(car.cost)) {
 			return false;
 		}
-		return carClass == car.carClass && carTransmission == this.carTransmission
+		if (imageUrl == null) {
+			if (car.imageUrl != null) {
+				return false;
+			}
+		} else if (!imageUrl.equals(car.imageUrl)) {
+			return false;
+		}
+		return carTransmission == car.carTransmission
 				&& carManufacturer == car.carManufacturer && carStatus == car.carStatus;
 	}
 
@@ -361,7 +371,6 @@ public class Car extends AbstractEntity {
 		builder.append(", year = ").append(year);
 		builder.append(", conditioner = ").append(conditioner);
 		builder.append(", cost = ").append(cost);
-		builder.append(", class = ").append(carClass.name().toLowerCase());
 		builder.append(", transmission = ").append(carTransmission.name().toLowerCase());
 		builder.append(", status = ").append(carStatus.name().toLowerCase());
 		builder.append("]");
@@ -448,15 +457,15 @@ public class Car extends AbstractEntity {
 			car.setCost(cost);
 			return this;
 		}
-
+		
 		/**
-		 * Sets the car class.
+		 * Sets the image url.
 		 *
-		 * @param carClass the car class
+		 * @param imageUrl the image url
 		 * @return the builder
 		 */
-		public Builder setCarClass(CarClass carClass) {
-			car.setCarClass(carClass);
+		public Builder setImageUrl(String imageUrl) {
+			car.setImageUrl(imageUrl);
 			return this;
 		}
 
