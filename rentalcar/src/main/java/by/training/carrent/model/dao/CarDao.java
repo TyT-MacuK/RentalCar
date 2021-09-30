@@ -7,6 +7,8 @@ import by.training.carrent.exception.DaoException;
 import by.training.carrent.model.entity.Car;
 
 public interface CarDao extends BaseDao<Long, Car> {
+	
+	List<Car> findByLimit(int leftBorder, int numberOfLines) throws DaoException;
 
 	List<Car> findByModel(String model) throws DaoException;
 
@@ -14,13 +16,7 @@ public interface CarDao extends BaseDao<Long, Car> {
 
 	List<Car> findByYear(int year) throws DaoException;
 
-	List<Car> findByConditioner(boolean conditioner) throws DaoException;
-
 	List<Car> findByCost(BigDecimal cost) throws DaoException;
-
-	List<Car> findByClass(String carClass) throws DaoException;
-
-	List<Car> findByTransmission(String carTransmission) throws DaoException;
 
 	List<Car> findByManufacture(String carManufacturer) throws DaoException;
 
@@ -31,4 +27,6 @@ public interface CarDao extends BaseDao<Long, Car> {
 	boolean updateCost(long carId, BigDecimal cost) throws DaoException;
 
 	boolean updateStatus(long carId, long carStatusId) throws DaoException;
+	
+	int countCars() throws DaoException;
 }

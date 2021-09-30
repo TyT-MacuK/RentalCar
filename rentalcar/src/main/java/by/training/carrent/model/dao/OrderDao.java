@@ -7,10 +7,14 @@ import by.training.carrent.exception.DaoException;
 import by.training.carrent.model.entity.Order;
 
 public interface OrderDao extends BaseDao<Long, Order> {
+	
+	boolean add(Order order) throws DaoException;
+	
+	Optional<Order> findByCarId(long carId) throws DaoException;
+	
+	Optional<Order> findByOrderNumber(String orderNumber) throws DaoException;
 
 	List<Order> findByStatus(String status) throws DaoException;
-
-	Optional<Order> findByCarId(long carId) throws DaoException;
 
 	Optional<Order> findByUserId(long userId) throws DaoException;
 	

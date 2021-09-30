@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,35 +28,41 @@ public class OrderDaoImpl implements OrderDao {
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_ORDER = """
-			INSERT INTO orders (price, pick_up_date, return_date, order_status_id, car_id, user_id)
+			INSERT INTO orders (order_number, price, pick_up_date, return_date, order_status_id, car_id, user_id)
 			VALUES
-			(?, ?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?, ?)
 			""";
 	private static final String SQL_FIND_ALL = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			""";
 	private static final String SQL_FIND_BY_ID = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE order_id = ?
 			""";
+	private static final String SQL_FIND_BY_ORDER_NUMBER = """
+			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
+			FROM orders
+			JOIN order_status ON orders.order_status_id = order_status.order_status_id
+			WHERE order_number = ?
+			""";
 	private static final String SQL_FIND_BY_STATUS = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE order_status = ?
 			""";
 	private static final String SQL_FIND_BY_CAR_ID = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE car_id = ?
 			""";
 	private static final String SQL_FIND_BY_USER_ID = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE user_id = ?
@@ -70,17 +76,19 @@ public class OrderDaoImpl implements OrderDao {
 		return instance;
 	}
 	
+	@Override
 	public boolean add(Order order) throws DaoException {
 		logger.log(Level.INFO, "method add()");
 		boolean result = false;
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_CREATE_ORDER);) {
-			statement.setBigDecimal(1, order.getPrice());
-			statement.setTimestamp(2, Timestamp.valueOf(order.getPickUpDate()));
-			statement.setTimestamp(3, Timestamp.valueOf(order.getReturnDate()));
-			statement.setLong(4, order.getOrderStatus().ordinal() + 1);
-			statement.setLong(5, order.getCarId());
-			statement.setLong(6, order.getUserId());
+			statement.setString(1, order.getOrderNumber());
+			statement.setBigDecimal(2, order.getPrice());
+			statement.setDate(3, Date.valueOf(order.getPickUpDate()));
+			statement.setDate(4, Date.valueOf(order.getReturnDate()));
+			statement.setLong(5, order.getOrderStatus().ordinal() + 1);
+			statement.setLong(6, order.getCarId());
+			statement.setLong(7, order.getUserId());
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method add()", e);
@@ -98,11 +106,12 @@ public class OrderDaoImpl implements OrderDao {
 				ResultSet resultSet = statement.executeQuery();) {
 			while (resultSet.next()) {
 				Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+						.setOrderNumber(ORDER_NUMBER)
 						.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-						.setPickUpDate(resultSet.getTimestamp(ORDER_PICK_UP_DATE).toLocalDateTime())
-						.setReturnDate(resultSet.getTimestamp(ORDER_RETURN_DATE).toLocalDateTime())
-						.setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
-						.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+						.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+						.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
+						.setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
+						.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
 				listOrders.add(order);
 			}
 		} catch (SQLException e) {
@@ -122,18 +131,46 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-							.setPickUpDate(resultSet.getTimestamp(ORDER_PICK_UP_DATE).toLocalDateTime())
-							.setReturnDate(resultSet.getTimestamp(ORDER_RETURN_DATE).toLocalDateTime())
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
 							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
 					result = Optional.ofNullable(order);
 				}
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findById()", e);
 			throw new DaoException("Exception when find order by id", e);
+		}
+		return result;
+	}
+	
+	@Override
+	public Optional<Order> findByOrderNumber(String orderNumber) throws DaoException {
+		logger.log(Level.INFO, "method findByOrderNumber()");
+		Optional<Order> result = Optional.empty();
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ORDER_NUMBER)) {
+			statement.setString(1, orderNumber);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setOrderNumber(ORDER_NUMBER)
+							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
+							.setOrderStatus(
+									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
+					result = Optional.ofNullable(order);
+				}
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method findByOrderNumber()", e);
+			throw new DaoException("Exception when find order by number", e);
 		}
 		return result;
 	}
@@ -154,11 +191,12 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery();) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-							.setPickUpDate(resultSet.getTimestamp(ORDER_PICK_UP_DATE).toLocalDateTime())
-							.setReturnDate(resultSet.getTimestamp(ORDER_RETURN_DATE).toLocalDateTime())
-							.setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
+							.setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
 					listOrders.add(order);
 				}
 			}
@@ -179,12 +217,13 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-							.setPickUpDate(resultSet.getTimestamp(ORDER_PICK_UP_DATE).toLocalDateTime())
-							.setReturnDate(resultSet.getTimestamp(ORDER_RETURN_DATE).toLocalDateTime())
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
 							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
 					result = Optional.ofNullable(order);
 				}
 			}
@@ -205,12 +244,13 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-							.setPickUpDate(resultSet.getTimestamp(ORDER_PICK_UP_DATE).toLocalDateTime())
-							.setReturnDate(resultSet.getTimestamp(ORDER_RETURN_DATE).toLocalDateTime())
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
 							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
 					result = Optional.ofNullable(order);
 				}
 			}

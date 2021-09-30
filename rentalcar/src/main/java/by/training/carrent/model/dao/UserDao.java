@@ -18,7 +18,7 @@ public interface UserDao extends BaseDao<Long, User> {// TODO role update
 	
 	Optional<User> findByEmailAndPassword(String email, String password) throws DaoException;
 	
-	boolean removePasswordForAuthentication(String passwordForAuthentication) throws DaoException;
+	boolean updatePasswordForAuthentication(long userId, String passwordForAuthentication) throws DaoException;
 	
 	boolean updateFirstName(long userId, String name) throws DaoException;
 	
@@ -29,6 +29,8 @@ public interface UserDao extends BaseDao<Long, User> {// TODO role update
 	boolean updateDiscount(long userId, int discount) throws DaoException;
 
 	boolean updatePhoneNumber(long userId, String phoneNumber) throws DaoException;
+	
+	boolean updatePassword(String email, String password) throws DaoException;
 
 	boolean updateStatus(long userId, long userStatusId) throws DaoException;
 }

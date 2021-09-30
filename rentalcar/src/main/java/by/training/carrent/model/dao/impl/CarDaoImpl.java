@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,35 +21,40 @@ import by.training.carrent.model.connection.ConnectionPool;
 import by.training.carrent.model.dao.CarDao;
 import by.training.carrent.model.entity.Car;
 
-public class CarDaoImpl implements CarDao {  
-	
+public class CarDaoImpl implements CarDao {
+
 //TODO method remove
-	
 	private static final Logger logger = LogManager.getLogger();
 	private final static CarDaoImpl instance = new CarDaoImpl();
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_CAR = """
-			INSERT INTO cars (model, year, conditioner, cost, car_class_id,
+			INSERT INTO cars (model, year, conditioner, cost, image_url,
 			 car_transmission_id, car_manufacturer_id, car_status_id)
 			VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?)
 			""";
 	private static final String SQL_FIND_ALL = """
 			 		SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
 			 		""";
-	
+	private static final String SQL_FIND_CARS_BY_LIMIT = """
+			 		SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
+			   FROM cars
+			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
+			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
+			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
+			   LIMIT ?, ?
+			 		""";
 	private static final String SQL_FIND_BY_ID = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
@@ -56,9 +62,8 @@ public class CarDaoImpl implements CarDao {
 					""";
 	private static final String SQL_FIND_BY_MODEL = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
@@ -66,9 +71,8 @@ public class CarDaoImpl implements CarDao {
 					""";
 	private static final String SQL_FIND_BY_DISCOUNT = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
@@ -76,70 +80,35 @@ public class CarDaoImpl implements CarDao {
 					""";
 	private static final String SQL_FIND_BY_YEAR = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
 			   WHERE year = ?
 					""";
-	private static final String SQL_FIND_BY_CONDITIONER = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE conditioner = ?
-					""";
 	private static final String SQL_FIND_BY_COST = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			  JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
 			   WHERE cost = ?
 					""";
-
-	private static final String SQL_FIND_BY_CLASS = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE car_class.class = ?
-					""";
-	private static final String SQL_FIND_BY_TRANSMISSION = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_class ON cars.car_class_id = car_class.class_id
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE car_transmission.transmission = ?
-					""";
 	private static final String SQL_FIND_BY_MANUFACTURER = """
-			SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-	conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
-	   FROM cars
-	   JOIN car_class ON cars.car_class_id = car_class.class_id
-	   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-	   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-	   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-	   WHERE car_manufacturer.manufacturer = ?
-			""";
+					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
+			   FROM cars
+			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
+			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
+			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
+			   WHERE car_manufacturer.manufacturer = ?
+					""";
 	private static final String SQL_FIND_BY_STATUS = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, car_class.class, car_transmission.transmission, car_status.car_status
+			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
-			  JOIN car_class ON cars.car_class_id = car_class.class_id
 			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
@@ -148,6 +117,7 @@ public class CarDaoImpl implements CarDao {
 	private static final String SQL_UPDATE_DISCOUNT = "UPDATE cars SET discount = ? WHERE car_id = ?";
 	private static final String SQL_UPDATE_COST = "UPDATE cars SET cost = ? WHERE car_id = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE cars SET cars.car_status_id = ? WHERE car_id = ?";
+	private static final String SQL_COUNT_CARS = "SELECT COUNT(car_id) AS count_cars FROM cars";
 
 	private CarDaoImpl() {
 	}
@@ -165,7 +135,7 @@ public class CarDaoImpl implements CarDao {
 			statement.setInt(2, car.getYear());
 			statement.setBoolean(3, car.isConditioner());
 			statement.setBigDecimal(4, car.getCost());
-			statement.setLong(5, car.getCarClass().ordinal() + 1);
+			statement.setString(5, car.getImageUrl());
 			statement.setLong(6, car.getCarTransmission().ordinal() + 1);
 			statement.setLong(7, car.getCarManufacturer().ordinal() + 1);
 			statement.setLong(8, car.getCarStatus().ordinal() + 1);
@@ -200,6 +170,24 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	@Override
+	public List<Car> findByLimit(int leftBorder, int numberOfLines) throws DaoException {
+		logger.log(Level.INFO, "method findByLimit()");
+		List<Car> listCars = new ArrayList<>();
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_CARS_BY_LIMIT)) {
+			statement.setInt(1, leftBorder);
+			statement.setInt(2, numberOfLines);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				listCars = createListCars(resultSet);
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new DaoException("Exception when find cars by limit", e);
+		}
+		return listCars;
+	}
+
+	@Override
 	public Optional<Car> findById(Long id) throws DaoException {
 		logger.log(Level.INFO, "method findById()");
 		Optional<Car> result = Optional.empty();
@@ -211,11 +199,11 @@ public class CarDaoImpl implements CarDao {
 					Car car = new Car.Builder().setCarId(resultSet.getLong(CAR_ID))
 							.setModel(resultSet.getString(CAR_MODEL)).setDiscount(resultSet.getInt(CAR_DISCOUNT))
 							.setYear(resultSet.getInt(CAR_YEAR)).setConditioner(resultSet.getBoolean(CAR_CONDITIONER))
-							.setCost(resultSet.getBigDecimal(CAR_COST))
-							.setCarClass(Car.CarClass.valueOf(resultSet.getString(8).toUpperCase()))
+							.setCost(resultSet.getBigDecimal(CAR_COST)).setImageUrl(resultSet.getString(CAR_IMAGE_URI))
 							.setCarTransmission(Car.CarTransmission.valueOf(resultSet.getString(9)))
 							.setCarManufacturer(Car.CarManufacturer.valueOf(resultSet.getString(2)))
-							.setCarStatus(Car.CarStatus.valueOf(resultSet.getString(10).toUpperCase())).build();
+							.setCarStatus(Car.CarStatus.valueOf(resultSet.getString(10).replace(SPASE, UNDERSCORE)))
+							.build();
 					result = Optional.ofNullable(car);
 				}
 			}
@@ -278,23 +266,6 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	@Override
-	public List<Car> findByConditioner(boolean conditioner) throws DaoException {
-		logger.log(Level.INFO, "method findByConditioner()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_CONDITIONER)) {
-			statement.setBoolean(1, conditioner);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByConditioner()", e);
-			throw new DaoException("Exception when find by conditioner", e);
-		}
-		return listCars;
-	}
-
-	@Override
 	public List<Car> findByCost(BigDecimal cost) throws DaoException {
 		logger.log(Level.INFO, "method findByCost()");
 		List<Car> listCars = new ArrayList<>();
@@ -307,40 +278,6 @@ public class CarDaoImpl implements CarDao {
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findByCost()", e);
 			throw new DaoException("Exception when find by cost", e);
-		}
-		return listCars;
-	}
-
-	@Override
-	public List<Car> findByClass(String carClass) throws DaoException {
-		logger.log(Level.INFO, "method findByClass()");
-		List<Car> result = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_CLASS)) {
-			statement.setString(1, carClass);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByClass()", e);
-			throw new DaoException("Exception when find by class", e);
-		}
-		return result;
-	}
-
-	@Override
-	public List<Car> findByTransmission(String carTransmission) throws DaoException {
-		logger.log(Level.INFO, "method findByTransmission()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_TRANSMISSION)) {
-			statement.setString(1, carTransmission);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByTransmission()", e);
-			throw new DaoException("Exception when find by transmission", e);
 		}
 		return listCars;
 	}
@@ -426,6 +363,24 @@ public class CarDaoImpl implements CarDao {
 		}
 		return result;
 	}
+
+	@Override
+	public int countCars() throws DaoException {
+		logger.log(Level.INFO, "method countCars()");
+		int result = 0;
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				Statement statement = connection.createStatement();
+				ResultSet resultSet = statement.executeQuery(SQL_COUNT_CARS)) {
+			while (resultSet.next()) {
+				result = resultSet.getInt(COUNT_CARS);
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method countCars()", e);
+			throw new DaoException("Exception when count cars", e);
+		}
+		return result;
+	}
+
 	private List<Car> createListCars(ResultSet resultSet) throws DaoException {
 		logger.log(Level.INFO, "method createListCars()");
 		List<Car> listCars = new ArrayList<>();
@@ -434,11 +389,11 @@ public class CarDaoImpl implements CarDao {
 				Car car = new Car.Builder().setCarId(resultSet.getLong(CAR_ID)).setModel(resultSet.getString(CAR_MODEL))
 						.setDiscount(resultSet.getInt(CAR_DISCOUNT)).setYear(resultSet.getInt(CAR_YEAR))
 						.setConditioner(resultSet.getBoolean(CAR_CONDITIONER))
-						.setCost(resultSet.getBigDecimal(CAR_COST))
-						.setCarClass(Car.CarClass.valueOf(resultSet.getString(8)))
+						.setCost(resultSet.getBigDecimal(CAR_COST)).setImageUrl(resultSet.getString(CAR_IMAGE_URI))
 						.setCarTransmission(Car.CarTransmission.valueOf(resultSet.getString(9)))
 						.setCarManufacturer(Car.CarManufacturer.valueOf(resultSet.getString(2)))
-						.setCarStatus(Car.CarStatus.valueOf(resultSet.getString(10).replace(SPASE, UNDERSCORE))).build();
+						.setCarStatus(Car.CarStatus.valueOf(resultSet.getString(10).replace(SPASE, UNDERSCORE)))
+						.build();
 				listCars.add(car);
 			}
 		} catch (SQLException e) {

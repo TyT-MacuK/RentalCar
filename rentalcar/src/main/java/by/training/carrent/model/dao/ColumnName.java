@@ -13,6 +13,7 @@ public final class ColumnName {
 	public static final String USER_DATE_OF_BIRTH = "date_of_birth";
 	public static final String USER_STATUS = "user_ststus_id";
 	public static final String USER_ROLE = "user_role_id";
+	public static final String COUNT_USERS = "count_users";
 	// Table: "user_status"
 	public static final String USER_STATUS_ID = "user_status_id";
 	public static final String USER_STATUS_NAME = "user_status";
@@ -26,13 +27,11 @@ public final class ColumnName {
 	public static final String CAR_YEAR = "year";
 	public static final String CAR_CONDITIONER = "conditioner";
 	public static final String CAR_COST = "cost";
-	public static final String CAR_CLASS = "car_class_id";
+	public static final String CAR_IMAGE_URI = "image_url";
 	public static final String CAR_TRANSMISSION = "car_transmission_id";
 	public static final String CAR_MANUFACTURER = "car_manufacturer_id";
 	public static final String CAR_STATUS = "car_status_id";
-	// Table: "car_class"
-	public static final String CAR_CLASS_ID = "class_id";
-	public static final String CAR_CLASS_NAME = "class";
+	public static final String COUNT_CARS = "count_cars";
 	// Table: "car_manufacturer"
 	public static final String CAR_MANUFACTURER_ID = "manufacturer_id";
 	public static final String CAR_MANUFACTURER_NAME = "manufacturer";
@@ -41,6 +40,7 @@ public final class ColumnName {
 	public static final String CAR_STATUS_NAME = "car_status";
 	// Table: "orders"
 	public static final String ORDER_ID = "order_id";
+	public static final String ORDER_NUMBER = "order_number";
 	public static final String ORDER_PRICE = "price";
 	public static final String ORDER_PICK_UP_DATE = "pick_up_date";
 	public static final String ORDER_RETURN_DATE = "return_date";
@@ -50,6 +50,7 @@ public final class ColumnName {
 	// Table: "order_status"
 	public static final String ORDER_STATUS_ID = "order_status_id";
 	public static final String ORDER_STATUS_NAME = "order_status";
+	public static final String COUNT_ORDERS = "count_orders";
 
 	private ColumnName() {
 	}

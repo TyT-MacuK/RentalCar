@@ -81,12 +81,13 @@ public class UserDaoImpl implements UserDao {
 			 JOIN user_role ON users.user_role_id = user_role.role_id
 			 WHERE email= ? AND password = ?;
 			""";
-	private static final String SQL_REMOVE_PASSWORD_FOR_AUTHENTICATION = "UPDATE users SET password_for_authentication = ? WHERE password_for_authentication = ?";
+	private static final String SQL_UPDATE_PASSWORD_FOR_AUTHENTICATION = "UPDATE users SET password_for_authentication = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_FIRST_NAME = "UPDATE users SET first_name = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_LAST_NAME = "UPDATE users SET last_name = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_EMAIL = "UPDATE users SET email = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_DISCOUNT = "UPDATE users SET discount = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_PHONE_NUMBER = "UPDATE users SET phone_number = ? WHERE user_id = ?";
+	private static final String SQL_UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE email = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE users SET user_status_id = ? WHERE user_id = ?";
 
 	private UserDaoImpl() {
@@ -114,7 +115,7 @@ public class UserDaoImpl implements UserDao {
 			statement.setLong(10, user.getRole().ordinal() + 1);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method add(): {}", e);
+			logger.log(Level.ERROR, "exception in method add(): ", e);
 			throw new DaoException("Exception when add user: {}" , e);
 		}
 		return result;
@@ -292,17 +293,17 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public boolean removePasswordForAuthentication(String passwordForAuthentication) throws DaoException {
-		logger.log(Level.INFO, "method removePasswordForAuthentication()");
+	public boolean updatePasswordForAuthentication(long userId, String passwordForAuthentication) throws DaoException {
+		logger.log(Level.INFO, "method updatePasswordForAuthentication()");
 		boolean result = false;
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_PASSWORD_FOR_AUTHENTICATION)) {
-			statement.setString(2, passwordForAuthentication);
-			statement.setString(1, null);
+				PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_PASSWORD_FOR_AUTHENTICATION)) {
+			statement.setLong(2, userId);
+			statement.setString(1, passwordForAuthentication);
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method removePasswordForAuthentication()", e);
-			throw new DaoException("Exception when remove password for authentication", e);
+			logger.log(Level.ERROR, "exception in method updatePasswordForAuthentication()", e);
+			throw new DaoException("Exception when update password for authentication", e);
 		}
 		return result;
 	}
@@ -383,6 +384,22 @@ public class UserDaoImpl implements UserDao {
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method updatePhoneNumber()", e);
 			throw new DaoException("Exception when update phone number", e);
+		}
+		return result;
+	}
+	
+	@Override
+	public boolean updatePassword(String email, String password) throws DaoException {
+		logger.log(Level.INFO, "method updatePassword()");
+		boolean result = false;
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_PASSWORD)) {
+			statement.setString(2, email);
+			statement.setString(1, password);
+			result = statement.executeUpdate() > 0;
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method updatePassword()", e);
+			throw new DaoException("Exception when update password", e);
 		}
 		return result;
 	}
