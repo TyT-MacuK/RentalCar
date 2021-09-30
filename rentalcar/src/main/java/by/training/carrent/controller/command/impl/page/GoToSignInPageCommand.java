@@ -20,7 +20,6 @@ public class GoToSignInPageCommand implements Command {
 		logger.log(Level.INFO, "method execute()");
 		HttpSession session = request.getSession();
 		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.SIGN_IN_PAGE_REDIRECT);
-		logger.log(Level.INFO, "redirected to sign up page");
 		return new Router(PagePath.SIGN_IN_PAGE);
 	}
 

@@ -1,7 +1,5 @@
 package by.training.carrent.controller.command.impl.change;
 
-import static by.training.carrent.controller.command.SessionAttribute.USER;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -18,7 +16,7 @@ import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.impl.UserServiceImpl;
 
-public class ChangeFirstNameCommand implements Command {
+public class ChangeLastNameCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
 
 	@Override
@@ -28,18 +26,17 @@ public class ChangeFirstNameCommand implements Command {
 		HttpSession session = request.getSession();
 		UserServiceImpl service = UserServiceImpl.getInstance();
 		User user = (User) session.getAttribute(SessionAttribute.USER);
-		String name = request.getParameter(RequestParameter.USER_FIRST_NAME);
-
+		String name = request.getParameter(RequestParameter.USER_LAST_NAME);
 		try {
-			if (service.updateFirstName(user.getUserId(), name)) {
-				user.setFirstName(name);
-				session.setAttribute(USER, user);
+			if (service.updateLastName(user.getUserId(), name)) {
+				user.setLastName(name);
+				session.setAttribute(SessionAttribute.USER, user);
 				router = new Router(PagePath.HOME_PAGE_REDIRECT);
 				router.setRedirect();
 				logger.log(Level.INFO, "the name was changed successfully");
 			} else {
 				logger.log(Level.INFO, "entered data is incorrect");
-				router = new Router(PagePath.CHANGE_FIRST_NAME_PAGE);
+				router = new Router(PagePath.CHANGE_LAST_NAME_PAGE);
 				request.setAttribute(RequestParameter.CHANGE_ERROR, true);
 			}
 		} catch (ServiceException e) {

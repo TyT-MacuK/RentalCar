@@ -1,9 +1,8 @@
-package by.training.carrent.controller.command.impl.change;
+package by.training.carrent.controller.command.impl;
 
-import static by.training.carrent.controller.command.SessionAttribute.USER;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -18,35 +17,33 @@ import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.impl.UserServiceImpl;
 
-public class ChangeFirstNameCommand implements Command {
+public class CodeEntryCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
 
 	@Override
 	public Router execute(HttpServletRequest request) {
-		logger.log(Level.INFO, "method execute()");
+		logger.log(Level.INFO, "methed execute()");
 		Router router;
-		HttpSession session = request.getSession();
 		UserServiceImpl service = UserServiceImpl.getInstance();
-		User user = (User) session.getAttribute(SessionAttribute.USER);
-		String name = request.getParameter(RequestParameter.USER_FIRST_NAME);
-
+		String enteredCode = request.getParameter(RequestParameter.CODE);
 		try {
-			if (service.updateFirstName(user.getUserId(), name)) {
-				user.setFirstName(name);
-				session.setAttribute(USER, user);
+			Optional<User> user = service.findByPasswordForAuthentication(enteredCode);
+			if (user.isPresent()) {
+				long userId = user.get().getUserId();
+				service.updateStatus(userId, User.UserStatus.ACTIVE.ordinal() + 1);
+				service.updatePasswordForAuthentication(userId, null);
 				router = new Router(PagePath.HOME_PAGE_REDIRECT);
 				router.setRedirect();
-				logger.log(Level.INFO, "the name was changed successfully");
+				logger.log(Level.INFO, "the code is confirmed. Status changed to active");
 			} else {
-				logger.log(Level.INFO, "entered data is incorrect");
-				router = new Router(PagePath.CHANGE_FIRST_NAME_PAGE);
-				request.setAttribute(RequestParameter.CHANGE_ERROR, true);
+				logger.log(Level.ERROR, "the entered code is incorrect");
+				request.setAttribute(SessionAttribute.ENTERED_CODE_ERROR, true);
+				router = new Router(PagePath.CODE_PAGE);
 			}
 		} catch (ServiceException e) {
-			logger.log(Level.ERROR, "error during changing user name: ", e);
+			logger.log(Level.ERROR, "error while entering code", e);
 			router = new Router(PagePath.ERROR_500_PAGE);
 		}
 		return router;
 	}
-
 }

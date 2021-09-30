@@ -25,5 +25,4 @@ public class ChangeLanguageToEnglishCommand implements Command {
 		logger.log(Level.INFO, "language was changed to English");
 		return router;
 	}
-
 }

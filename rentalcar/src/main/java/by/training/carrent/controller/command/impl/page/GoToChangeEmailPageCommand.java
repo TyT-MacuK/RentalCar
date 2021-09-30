@@ -12,15 +12,15 @@ import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.SessionAttribute;
 
-public class GoToSignUpPageCommand implements Command {
+public class GoToChangeEmailPageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
-
+	
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
 		HttpSession session = request.getSession();
-		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.SIGN_UP_PAGE_REDIRECT);
-		return new Router(PagePath.SIGN_UP_PAGE);
+		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.CHANGE_EMAIL_REDIRECT);
+		return new Router(PagePath.CHANGE_EMAIL_PAGE);
 	}
 
 }
