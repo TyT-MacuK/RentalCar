@@ -9,31 +9,32 @@
 <html>
 <head>
 <%@ include file="/css/links_to_bootstrap.jsp"%>
-<title><fmt:message key="page.change_name.title" /></title>
+<title><fmt:message key="payment.title" /></title>
 </head>
 <body>
-<%@ include file="/pages/parts/navbar.jsp"%>
+	<h3 class="text-center">
+		<fmt:message key="payment.heading" />
+	</h3>
 	<div class="row justify-content-md-center">
 		<div class="col col-lg-6 mt-3">
-			<h3 class="text-center">
-				<fmt:message key="page.change_name.heading" />
-			</h3>
 			<form action="${pageContext.request.contextPath}/controller"
 				method="post">
-				<input type="hidden" name="command" value="change_first_name_page">
+				<input type="hidden" name="command" value="payment_entry_page">
 				<div class="mb-2">
-					<input type="text" class="form-control" name="first_name" required
-						pattern="[a-zA-Z]*|[ЁёА-я]*">
+					<label for="cardNumber" class="form-label"><fmt:message
+							key="payment.card_number" /></label> <input type="text"
+						class="form-control" name="card_number" required
+						pattern="^\d{16}$" />
+				</div>
+				<div class="mb-2">
+					<label for="cardNumber" class="form-label"><fmt:message
+							key="payment.cvv" /></label> <input type="text" class="form-control"
+						name="cvv" required pattern="^\d{3}$" />
 				</div>
 				<br />
 				<button type="submit" class="btn btn-primary">
 					<fmt:message key="submit" />
 				</button>
-				<c:if test="${change_error}">
-					<p class="text-danger">
-						<fmt:message key="change.error" />
-					</p>
-				</c:if>
 			</form>
 		</div>
 	</div>

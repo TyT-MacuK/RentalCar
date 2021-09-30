@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 	<div class="container-fluid">
 		<a class="navbar-brand"
-			href="${pageContext.request.contextPath}/controller?command=to_home_page_command">
+			href="${pageContext.request.contextPath}/controller?command=to_home_page_command&page=1">
 			<p class="text-success">Car4U</p>
 		</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -17,7 +17,10 @@
 						aria-current="page" href="${pageContext.request.contextPath}/controller?command=to_personal_profile_page_command">
 						<fmt:message key="navbar.profile" /></a>
 					</li>
-					<li class="nav-item"><a class="nav-link active"
+					
+				</c:if>
+				<c:if test="${is_authenticated && user.getRole() == 'USER'}">
+				<li class="nav-item"><a class="nav-link active"
 						aria-current="page" href="#"><fmt:message key="navbar.orders" /></a>
 					</li>
 				</c:if>
@@ -26,6 +29,23 @@
 						aria-current="page"
 						href="${pageContext.request.contextPath}/controller?command=to_sign_in_page_command">
 							<fmt:message key="navbar.sign_in" />
+					</a></li>
+				</c:if>
+				<c:if test="${is_authenticated && user.getRole() == 'ADMIN'}">
+				<li class="nav-item"><a class="nav-link active"
+						aria-current="page"
+						href="${pageContext.request.contextPath}/controller?command=users_command">
+							<fmt:message key="navbar.users" />
+					</a></li>
+					<li class="nav-item"><a class="nav-link active"
+						aria-current="page"
+						href="${pageContext.request.contextPath}/controller?command=cars_command">
+							<fmt:message key="navbar.cars" />
+					</a></li>
+					<li class="nav-item"><a class="nav-link active"
+						aria-current="page"
+						href="${pageContext.request.contextPath}/controller?command=orders_command">
+							<fmt:message key="navbar.orders" />
 					</a></li>
 				</c:if>
 				<c:if test="${is_authenticated}">

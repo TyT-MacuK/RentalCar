@@ -28,15 +28,16 @@
 					<tr>
 						 <th scope="row">${user.getLastName()}</th>
 						 <td>
-						 <a href="${pageContext.request.contextPath}/controller?command=change_last_name_command"
-							class="link-primary"><fmt:message key="page.personal_profile.change" />
-						 </a>
-						 </td>
+						 <a
+							href="${pageContext.request.contextPath}/controller?command=to_change_last_name_page_command"
+							class="link-primary"><fmt:message
+									key="page.personal_profile.change" /> </a>
+						</td>
 					</tr>
 					<tr>
 						<th scope="row">+375${user.getPhoneNumber()}</th>
 						<td>
-						<a href="${pageContext.request.contextPath}/controller?command=change_phone_number_command"
+						<a href="${pageContext.request.contextPath}/controller?command=to_change_phone_number_page_command"
 							class="link-primary"><fmt:message key="page.personal_profile.change" />
 						 </a>
 						 </td>
@@ -44,7 +45,7 @@
 					<tr>
 						 <th scope="row">${user.getEmail()}</th>
 						 <td>
-						 <a href="${pageContext.request.contextPath}/controller?command=change_email_command"
+						 <a href="${pageContext.request.contextPath}/controller?command=to_change_email_page_command"
 							class="link-primary"><fmt:message key="page.personal_profile.change" />
 						 </a>
 						 </td>
@@ -57,9 +58,15 @@
 						 <th scope="row"><fmt:message key = "page.personal_profile.discount"/></th>
 						 <td>${user.getDiscount()}</td>
 					</tr>
+					<c:if test="${is_authenticated && user.getRole() == 'ADMIN'}">
+					<tr>
+						 <th scope="row"><fmt:message key = "page.personal_profile.role"/></th>
+						 <td>${user.getRole()}</td>
+					</tr>
+					</c:if>
 				</tbody>
 			</table>
-			<a href="${pageContext.request.contextPath}/controller?command=change_____command"
+			<a href="${pageContext.request.contextPath}/controller?command=to_change_password_page_command"
 					class="link-primary"><fmt:message key="page.personal_profile.password" />
 				</a>
 		</div>

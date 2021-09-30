@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib prefix="pgn" uri="pagination"%>
 <c:set var="language" value="${sessionScope.locale}" scope="session" />
 <fmt:setLocale value="${language}" scope="session" />
 <fmt:setBundle basename="local.pagecontent" />
@@ -21,13 +22,11 @@
 			<c:forEach var="car" items="${cars}">
 				<div class="col-xs-6 col-md-4">
 					<div class="product tumbnail thumbnail-3">
-						<a href="#"><img
-							src="${pageContext.request.contextPath}/img/skoda_rapid_2021.jpg"
-							alt=""></a>
+						<img
+							src="${pageContext.request.contextPath}${car.getImageUrl()}"
+							alt="">
 						<div class="caption">
-							<h6>
-								<a href="#">${car.getCarManufacturer()} ${car.getModel()}</a>
-							</h6>
+							<h6>${car.getCarManufacturer()} ${car.getModel()}</h6>
 							<c:if test="${car.getDiscount() > 0}">
 								<span class="price"><fmt:message key="home_page.price" />
 									- <del>${car.getCost()}</del></span>
@@ -52,11 +51,25 @@
 								<span class="conditioner text-success"><fmt:message
 										key="home_page.conditioner" /></span>
 							</c:if>
+							<br />
+							<form action="${pageContext.request.contextPath}/controller"
+								method="post">
+								<input type="hidden" name="command" value="sign_up_page">
+
+							</form>
+							<c:if test="${is_authenticated == true}">
+							<a
+								href="${pageContext.request.contextPath}/controller?command=to_make_order_page_command&car_id=${car.getCarId()}"
+								class="link-primary"><fmt:message key="home_page.order" />
+							</a>
+							</c:if>
 						</div>
 					</div>
 				</div>
 			</c:forEach>
 		</div>
 	</div>
+	<br/>
+	<pgn:pagination maxPage="${max_number_of_pages}" page="${page}" />
 </body>
 </html>

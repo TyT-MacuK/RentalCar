@@ -9,23 +9,28 @@
 <html>
 <head>
 <%@ include file="/css/links_to_bootstrap.jsp"%>
-<title><fmt:message key="page.change_name.title" /></title>
+<title><fmt:message key="page.change_password.title" /></title>
 </head>
 <body>
 <%@ include file="/pages/parts/navbar.jsp"%>
 	<div class="row justify-content-md-center">
 		<div class="col col-lg-6 mt-3">
 			<h3 class="text-center">
-				<fmt:message key="page.change_name.heading" />
+				<fmt:message key="page.change_password.heading" />
 			</h3>
 			<form action="${pageContext.request.contextPath}/controller"
 				method="post">
-				<input type="hidden" name="command" value="change_first_name_page">
-				<div class="mb-2">
-					<input type="text" class="form-control" name="first_name" required
-						pattern="[a-zA-Z]*|[ЁёА-я]*">
+				<input type="hidden" name="command" value="change_password_page">
+				<div class="mb-4">
+					<label for="inputPassword1" class="form-label"><fmt:message
+							key="page.change_password.old_password" /></label> <input type="password"
+						class="form-control" name="old_password" required pattern=".{5,64}" />
 				</div>
-				<br />
+				<div class="mb-4">
+					<label for="inputPassword1" class="form-label"><fmt:message
+							key="page.change_password.new_password" /></label> <input type="password"
+						class="form-control" name="new_password" required pattern=".{5,64}" />
+				</div>
 				<button type="submit" class="btn btn-primary">
 					<fmt:message key="submit" />
 				</button>

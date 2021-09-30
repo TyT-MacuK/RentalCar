@@ -20,9 +20,9 @@
 			</h3>
 			<form action="${pageContext.request.contextPath}/controller"
 				method="post">
-				<input type="hidden" name="command" value="change_first_name_page">
+				<input type="hidden" name="command" value="change_last_name_page">
 				<div class="mb-2">
-					<input type="text" class="form-control" name="first_name" required
+					<input type="text" class="form-control" name="last_name" required
 						pattern="[a-zA-Z]*|[ЁёА-я]*">
 				</div>
 				<br />
