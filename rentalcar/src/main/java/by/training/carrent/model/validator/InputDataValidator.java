@@ -2,7 +2,6 @@ package by.training.carrent.model.validator;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class InputDataValidator.
  */
