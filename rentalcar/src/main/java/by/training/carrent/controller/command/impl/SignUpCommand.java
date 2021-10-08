@@ -1,5 +1,7 @@
 package by.training.carrent.controller.command.impl;
 
+import static by.training.carrent.controller.command.RequestParameter.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +21,7 @@ import by.training.carrent.util.EmailSender;
 import by.training.carrent.util.CodeGenerator;
 import by.training.carrent.controller.Router;
 
-import static by.training.carrent.controller.command.RequestParameter.*;
+
 
 public class SignUpCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
