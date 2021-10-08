@@ -7,7 +7,7 @@ import java.util.Optional;
 import by.training.carrent.exception.DaoException;
 import by.training.carrent.model.entity.User;
 
-public interface UserDao extends BaseDao<Long, User> {// TODO role update
+public interface UserDao extends BaseDao<Long, User> {
 	boolean add(User user, String password, String passwordForAuthentication) throws DaoException;
 	
 	Optional<User> findByPasswordForAuthentication(String passwordForAuthentication) throws DaoException;
@@ -17,6 +17,8 @@ public interface UserDao extends BaseDao<Long, User> {// TODO role update
 	Optional<User> findByEmail(String email) throws DaoException;
 	
 	Optional<User> findByEmailAndPassword(String email, String password) throws DaoException;
+	
+	List<User> findByLimit(int leftBorder, int numberOfLines) throws DaoException;
 	
 	boolean updatePasswordForAuthentication(long userId, String passwordForAuthentication) throws DaoException;
 	
@@ -33,4 +35,6 @@ public interface UserDao extends BaseDao<Long, User> {// TODO role update
 	boolean updatePassword(String email, String password) throws DaoException;
 
 	boolean updateStatus(long userId, long userStatusId) throws DaoException;
+	
+	int countUsers() throws DaoException;
 }

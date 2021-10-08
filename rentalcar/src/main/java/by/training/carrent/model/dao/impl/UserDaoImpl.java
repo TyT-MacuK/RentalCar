@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +18,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.DaoException;
+import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.connection.ConnectionPool;
 import by.training.carrent.model.dao.UserDao;
 import by.training.carrent.model.entity.User;
-
-//TODO remove
 
 public class UserDaoImpl implements UserDao {
 	private static final Logger logger = LogManager.getLogger();
@@ -30,7 +30,7 @@ public class UserDaoImpl implements UserDao {
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_USER = """
 			INSERT INTO users (email, password, password_for_authentication, first_name, last_name, discount,
-			 phone_number, date_of_birth, user_status_id, user_role_id)
+			phone_number, date_of_birth, user_status_id, user_role_id)
 			VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			""";
@@ -81,6 +81,14 @@ public class UserDaoImpl implements UserDao {
 			 JOIN user_role ON users.user_role_id = user_role.role_id
 			 WHERE email= ? AND password = ?;
 			""";
+	private static final String SQL_FIND_USERS_BY_LIMIT = """
+			SELECT user_id, email, first_name, last_name, discount, phone_number,
+			 date_of_birth, user_status.user_status, user_role.role
+			 FROM users
+			 JOIN user_status ON users.user_status_id = user_status.user_status_id
+			 JOIN user_role ON users.user_role_id = user_role.role_id
+			 LIMIT ?, ?
+			""";
 	private static final String SQL_UPDATE_PASSWORD_FOR_AUTHENTICATION = "UPDATE users SET password_for_authentication = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_FIRST_NAME = "UPDATE users SET first_name = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_LAST_NAME = "UPDATE users SET last_name = ? WHERE user_id = ?";
@@ -89,14 +97,15 @@ public class UserDaoImpl implements UserDao {
 	private static final String SQL_UPDATE_PHONE_NUMBER = "UPDATE users SET phone_number = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE email = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE users SET user_status_id = ? WHERE user_id = ?";
-
+	private static final String SQL_COUNT_USERS = "SELECT COUNT(user_id) AS count_users FROM users";
+	
 	private UserDaoImpl() {
 	}
 
 	public static UserDaoImpl getInstance() {
 		return instance;
 	}
-	
+
 	@Override
 	public boolean add(User user, String password, String passwordForAuthentication) throws DaoException {
 		logger.log(Level.INFO, "method add()");
@@ -116,7 +125,7 @@ public class UserDaoImpl implements UserDao {
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method add(): ", e);
-			throw new DaoException("Exception when add user: {}" , e);
+			throw new DaoException("Exception when add user: {}", e);
 		}
 		return result;
 	}
@@ -129,18 +138,7 @@ public class UserDaoImpl implements UserDao {
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_EMAIL)) {
 			statement.setString(1, email);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				while (resultSet.next()) {
-					User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
-							.setEmail(resultSet.getString(USER_EMAIL))
-							.setFirstName(resultSet.getString(USER_FIRST_NAME))
-							.setLastName(resultSet.getString(USER_LAST_NAME))
-							.setDiscount(resultSet.getInt(USER_DISCOUNT))
-							.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-							.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-							.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
-							.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-					result = Optional.ofNullable(user);
-				}
+				result = createOptionalUser(resultSet);
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findByEmail()", e);
@@ -148,7 +146,7 @@ public class UserDaoImpl implements UserDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public Optional<User> findByPasswordForAuthentication(String passwordForAuthentication) throws DaoException {
 		logger.log(Level.INFO, "method findByPasswordForAuthentication()");
@@ -157,18 +155,7 @@ public class UserDaoImpl implements UserDao {
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_PASSWORD_FOR_AUTHENTICATION)) {
 			statement.setString(1, passwordForAuthentication);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				while (resultSet.next()) {
-					User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
-							.setEmail(resultSet.getString(USER_EMAIL))
-							.setFirstName(resultSet.getString(USER_FIRST_NAME))
-							.setLastName(resultSet.getString(USER_LAST_NAME))
-							.setDiscount(resultSet.getInt(USER_DISCOUNT))
-							.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-							.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-							.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
-							.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-					result = Optional.ofNullable(user);
-				}
+				result = createOptionalUser(resultSet);
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findByPasswordForAuthentication()", e);
@@ -177,29 +164,27 @@ public class UserDaoImpl implements UserDao {
 		return result;
 	}
 
-	@Override
-	public List<User> findAll() throws DaoException {
-		logger.log(Level.INFO, "method findAll()");
-		List<User> listUsers = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_ALL);
-				ResultSet resultSet = statement.executeQuery()) {
-			while (resultSet.next()) {
-				User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
-						.setEmail(resultSet.getString(USER_EMAIL)).setFirstName(resultSet.getString(USER_FIRST_NAME))
-						.setLastName(resultSet.getString(USER_LAST_NAME)).setDiscount(resultSet.getInt(USER_DISCOUNT))
-						.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-						.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-						.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
-						.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-				listUsers.add(user);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findAll()", e);
-			throw new DaoException("Exception when find all users", e);
-		}
-		return listUsers;
-	}
+	/*
+	 * @Override public List<User> findAll() throws DaoException {
+	 * logger.log(Level.INFO, "method findAll()"); List<User> listUsers = new
+	 * ArrayList<>(); try (Connection connection =
+	 * ConnectionPool.getInstance().getConnection(); PreparedStatement statement =
+	 * connection.prepareStatement(SQL_FIND_ALL); ResultSet resultSet =
+	 * statement.executeQuery()) { while (resultSet.next()) { User user = new
+	 * User.Builder().setUserId(resultSet.getLong(USER_ID))
+	 * .setEmail(resultSet.getString(USER_EMAIL)).setFirstName(resultSet.getString(
+	 * USER_FIRST_NAME))
+	 * .setLastName(resultSet.getString(USER_LAST_NAME)).setDiscount(resultSet.
+	 * getInt(USER_DISCOUNT))
+	 * .setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
+	 * .setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
+	 * .setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE,
+	 * UNDERSCORE)))
+	 * .setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
+	 * listUsers.add(user); } } catch (SQLException e) { logger.log(Level.ERROR,
+	 * "exception in method findAll()", e); throw new
+	 * DaoException("Exception when find all users", e); } return listUsers; }
+	 */
 
 	@Override
 	public Optional<User> findById(Long id) throws DaoException {
@@ -209,18 +194,7 @@ public class UserDaoImpl implements UserDao {
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ID)) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				while (resultSet.next()) {
-					User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
-							.setEmail(resultSet.getString(USER_EMAIL))
-							.setFirstName(resultSet.getString(USER_FIRST_NAME))
-							.setLastName(resultSet.getString(USER_LAST_NAME))
-							.setDiscount(resultSet.getInt(USER_DISCOUNT))
-							.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-							.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-							.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
-							.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-					result = Optional.ofNullable(user);
-				}
+				result = createOptionalUser(resultSet);
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findById()", e);
@@ -231,8 +205,7 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public boolean remove(User user) throws DaoException {
-		// TODO Auto-generated method stub
-		return false;
+		return updateStatus(user.getUserId(), User.UserStatus.BANNED.ordinal() + 1);
 	}
 
 	@Override
@@ -243,18 +216,7 @@ public class UserDaoImpl implements UserDao {
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_DATE_OF_BIRTH)) {
 			statement.setDate(1, Date.valueOf(dateOfBirth));
 			try (ResultSet resultSet = statement.executeQuery()) {
-				while (resultSet.next()) {
-					User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
-							.setEmail(resultSet.getString(USER_EMAIL))
-							.setFirstName(resultSet.getString(USER_FIRST_NAME))
-							.setLastName(resultSet.getString(USER_LAST_NAME))
-							.setDiscount(resultSet.getInt(USER_DISCOUNT))
-							.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-							.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-							.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
-							.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-					listUsers.add(user);
-				}
+				listUsers = createListUsers(resultSet);
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findByDateOfBirth()", e);
@@ -262,7 +224,7 @@ public class UserDaoImpl implements UserDao {
 		}
 		return listUsers;
 	}
-	
+
 	@Override
 	public Optional<User> findByEmailAndPassword(String email, String password) throws DaoException {
 		logger.log(Level.INFO, "method findByEmailAndPassword()");
@@ -272,24 +234,31 @@ public class UserDaoImpl implements UserDao {
 			statement.setString(1, email);
 			statement.setString(2, password);
 			try (ResultSet resultSet = statement.executeQuery()) {
-				while (resultSet.next()) {
-					User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
-							.setEmail(resultSet.getString(USER_EMAIL))
-							.setFirstName(resultSet.getString(USER_FIRST_NAME))
-							.setLastName(resultSet.getString(USER_LAST_NAME))
-							.setDiscount(resultSet.getInt(USER_DISCOUNT))
-							.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-							.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-							.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
-							.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-					result = Optional.ofNullable(user);
-				}
+				result = createOptionalUser(resultSet);
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findByEmailAndPassword()", e);
 			throw new DaoException("Exception when find user by email and password", e);
 		}
 		return result;
+	}
+	
+	@Override
+	public List<User> findByLimit(int leftBorder, int numberOfLines) throws DaoException {
+		logger.log(Level.INFO, "method findByLimit()");
+		List<User> listUsers = new ArrayList<>();
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_USERS_BY_LIMIT)) {
+			statement.setInt(1, leftBorder);
+			statement.setInt(2, numberOfLines);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				listUsers = createListUsers(resultSet);
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new DaoException("Exception when find users by limit", e);
+		}
+		return listUsers;
 	}
 
 	@Override
@@ -339,7 +308,7 @@ public class UserDaoImpl implements UserDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public boolean updateEmail(long userId, String email) throws DaoException {
 		logger.log(Level.INFO, "method updateEmail()");
@@ -387,7 +356,7 @@ public class UserDaoImpl implements UserDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public boolean updatePassword(String email, String password) throws DaoException {
 		logger.log(Level.INFO, "method updatePassword()");
@@ -416,6 +385,57 @@ public class UserDaoImpl implements UserDao {
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new DaoException("Exception when update status", e);
+		}
+		return result;
+	}
+	
+	@Override
+	public int countUsers() throws DaoException  {
+		logger.log(Level.INFO, "method countUsers()");
+	int result = 0;
+	try (Connection connection = ConnectionPool.getInstance().getConnection();
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(SQL_COUNT_USERS)) {
+		while (resultSet.next()) {
+			result = resultSet.getInt(COUNT_USERS);
+		}
+	} catch (SQLException e) {
+		logger.log(Level.ERROR, "exception in method countUsers()", e);
+		throw new DaoException("Exception when count users", e);
+	}
+	return result;
+	}
+
+	private List<User> createListUsers(ResultSet resultSet) throws SQLException {
+		logger.log(Level.INFO, "method createListUsers()");
+		List<User> listUsers = new ArrayList<>();
+		while (resultSet.next()) {
+			User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
+					.setEmail(resultSet.getString(USER_EMAIL)).setFirstName(resultSet.getString(USER_FIRST_NAME))
+					.setLastName(resultSet.getString(USER_LAST_NAME)).setDiscount(resultSet.getInt(USER_DISCOUNT))
+					.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
+					.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
+					.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
+					.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
+			listUsers.add(user);
+		}
+		return listUsers;
+	}
+	
+	private Optional<User> createOptionalUser(ResultSet resultSet) throws SQLException {
+		logger.log(Level.INFO, "method createOptionalUser()");
+		Optional<User> result = Optional.empty();
+		while (resultSet.next()) {
+			User user = new User.Builder().setUserId(resultSet.getLong(USER_ID))
+					.setEmail(resultSet.getString(USER_EMAIL))
+					.setFirstName(resultSet.getString(USER_FIRST_NAME))
+					.setLastName(resultSet.getString(USER_LAST_NAME))
+					.setDiscount(resultSet.getInt(USER_DISCOUNT))
+					.setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
+					.setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
+					.setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE, UNDERSCORE)))
+					.setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
+			result = Optional.ofNullable(user);
 		}
 		return result;
 	}

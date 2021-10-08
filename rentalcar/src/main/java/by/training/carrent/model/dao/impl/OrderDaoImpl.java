@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,54 +21,65 @@ import by.training.carrent.model.connection.ConnectionPool;
 import by.training.carrent.model.dao.OrderDao;
 import by.training.carrent.model.entity.Order;
 
-//TODO method remove
-
 public class OrderDaoImpl implements OrderDao {
 	private static final Logger logger = LogManager.getLogger();
 	private static final OrderDaoImpl instance = new OrderDaoImpl();
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_ORDER = """
-			INSERT INTO orders (order_number, price, pick_up_date, return_date, order_status_id, car_id, user_id)
+			INSERT INTO orders (price, pick_up_date, return_date, order_status_id, car_id, user_id)
 			VALUES
-			(?, ?, ?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?)
 			""";
 	private static final String SQL_FIND_ALL = """
-			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			""";
 	private static final String SQL_FIND_BY_ID = """
-			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE order_id = ?
 			""";
-	private static final String SQL_FIND_BY_ORDER_NUMBER = """
-			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
-			FROM orders
-			JOIN order_status ON orders.order_status_id = order_status.order_status_id
-			WHERE order_number = ?
-			""";
 	private static final String SQL_FIND_BY_STATUS = """
-			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE order_status = ?
 			""";
 	private static final String SQL_FIND_BY_CAR_ID = """
-			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE car_id = ?
 			""";
 	private static final String SQL_FIND_BY_USER_ID = """
-			SELECT order_id, order_number, price, pick_up_date, return_date, order_status, car_id, user_id
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE user_id = ?
 			""";
+	private static final String SQL_FIND_ORDERS_BY_USER_ID_AND_LIMIT = """
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			FROM orders
+			JOIN order_status ON orders.order_status_id = order_status.order_status_id
+			WHERE user_id = ?
+			ORDER BY order_id DESC
+			LIMIT ?, ?
+			""";
+	private static final String SQL_FIND_ORDERS_BY_LIMIT = """
+			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
+			FROM orders
+			JOIN order_status ON orders.order_status_id = order_status.order_status_id
+			ORDER BY order_id DESC
+			LIMIT ?, ?
+			""";
+	private static final String SQL_FIND_CAR_ID_BY_USER_ID = "SELECT DISTINCT car_id FROM orders WHERE user_id = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE orders SET order_status_id = ? WHERE order_id = ?";
+	private static final String SQL_COUNT_ORDERS_TO_USER = "SELECT COUNT(order_id) AS count_orders FROM orders WHERE user_id = ?";
+	private static final String SQL_COUNT_ORDERS = "SELECT COUNT(order_id) AS count_orders FROM orders";
+	private static final String SQL_RETURN_ID = "SELECT LAST_INSERT_ID()";
 
 	private OrderDaoImpl() {
 	}
@@ -75,20 +87,19 @@ public class OrderDaoImpl implements OrderDao {
 	public static OrderDaoImpl getInstance() {
 		return instance;
 	}
-	
+
 	@Override
 	public boolean add(Order order) throws DaoException {
 		logger.log(Level.INFO, "method add()");
 		boolean result = false;
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_CREATE_ORDER);) {
-			statement.setString(1, order.getOrderNumber());
-			statement.setBigDecimal(2, order.getPrice());
-			statement.setDate(3, Date.valueOf(order.getPickUpDate()));
-			statement.setDate(4, Date.valueOf(order.getReturnDate()));
-			statement.setLong(5, order.getOrderStatus().ordinal() + 1);
-			statement.setLong(6, order.getCarId());
-			statement.setLong(7, order.getUserId());
+			statement.setBigDecimal(1, order.getPrice());
+			statement.setDate(2, Date.valueOf(order.getPickUpDate()));
+			statement.setDate(3, Date.valueOf(order.getReturnDate()));
+			statement.setLong(4, order.getOrderStatus().ordinal() + 1);
+			statement.setLong(5, order.getCarId());
+			statement.setLong(6, order.getUserId());
 			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method add()", e);
@@ -98,28 +109,48 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	@Override
-	public List<Order> findAll() throws DaoException {
-		logger.log(Level.INFO, "method findAll()");
-		List<Order> listOrders = new ArrayList<>();
+	public long addAndReturnId(Order order) throws DaoException {
+		logger.log(Level.INFO, "method addAndReturnId()");
+		long id = 0;
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_ALL);
-				ResultSet resultSet = statement.executeQuery();) {
-			while (resultSet.next()) {
-				Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-						.setOrderNumber(ORDER_NUMBER)
-						.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-						.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
-						.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
-						.setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
-						.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
-				listOrders.add(order);
+				PreparedStatement statement = connection.prepareStatement(SQL_CREATE_ORDER);) {
+			statement.setBigDecimal(1, order.getPrice());
+			statement.setDate(2, Date.valueOf(order.getPickUpDate()));
+			statement.setDate(3, Date.valueOf(order.getReturnDate()));
+			statement.setLong(4, order.getOrderStatus().ordinal() + 1);
+			statement.setLong(5, order.getCarId());
+			statement.setLong(6, order.getUserId());
+			statement.executeUpdate();
+			try (ResultSet resultSet = statement.executeQuery(SQL_RETURN_ID)) {
+				while (resultSet.next()) {
+					id = resultSet.getLong(1);
+				}
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findAll()", e);
-			throw new DaoException("Exception when find all orders", e);
+			logger.log(Level.ERROR, "exception in method addAndReturnId()", e);
+			throw new DaoException("Exception when add order and return id", e);
 		}
-		return listOrders;
+		return id;
 	}
+
+	/*
+	 * @Override public List<Order> findAll() throws DaoException {
+	 * logger.log(Level.INFO, "method findAll()"); List<Order> listOrders = new
+	 * ArrayList<>(); try (Connection connection =
+	 * ConnectionPool.getInstance().getConnection(); PreparedStatement statement =
+	 * connection.prepareStatement(SQL_FIND_ALL); ResultSet resultSet =
+	 * statement.executeQuery();) { while (resultSet.next()) { Order order = new
+	 * Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+	 * .setPrice(resultSet.getBigDecimal(ORDER_PRICE))
+	 * .setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+	 * .setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
+	 * .setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(5).replace(
+	 * SPASE, UNDERSCORE)))
+	 * .setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+	 * listOrders.add(order); } } catch (SQLException e) { logger.log(Level.ERROR,
+	 * "exception in method findAll()", e); throw new
+	 * DaoException("Exception when find all orders", e); } return listOrders; }
+	 */
 
 	@Override
 	public Optional<Order> findById(Long id) throws DaoException {
@@ -131,13 +162,12 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
 							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
 							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
 							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
+									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
 					result = Optional.ofNullable(order);
 				}
 			}
@@ -147,38 +177,10 @@ public class OrderDaoImpl implements OrderDao {
 		}
 		return result;
 	}
-	
-	@Override
-	public Optional<Order> findByOrderNumber(String orderNumber) throws DaoException {
-		logger.log(Level.INFO, "method findByOrderNumber()");
-		Optional<Order> result = Optional.empty();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ORDER_NUMBER)) {
-			statement.setString(1, orderNumber);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				while (resultSet.next()) {
-					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-							.setOrderNumber(ORDER_NUMBER)
-							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
-							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
-							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
-					result = Optional.ofNullable(order);
-				}
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByOrderNumber()", e);
-			throw new DaoException("Exception when find order by number", e);
-		}
-		return result;
-	}
 
 	@Override
 	public boolean remove(Order order) throws DaoException {
-		// TODO Auto-generated method stub
-		return false;
+		return updateStatus(order.getOrderId(), Order.OrderStatus.DECLINED.ordinal() + 1);
 	}
 
 	@Override
@@ -191,12 +193,12 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery();) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
 							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
 							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
-							.setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
+							.setOrderStatus(
+									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
 					listOrders.add(order);
 				}
 			}
@@ -208,30 +210,29 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	@Override
-	public Optional<Order> findByCarId(long carId) throws DaoException {
+	public List<Order> findByCarId(long carId) throws DaoException {
 		logger.log(Level.INFO, "method findByCarId()");
-		Optional<Order> result = Optional.empty();
+		List<Order> listOrders = new ArrayList<>();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_CAR_ID)) {
 			statement.setLong(1, carId);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
 							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
 							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
 							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
-					result = Optional.ofNullable(order);
+									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+					listOrders.add(order);
 				}
 			}
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method findByCarId()", e);
 			throw new DaoException("Exception when find by car id", e);
 		}
-		return result;
+		return listOrders;
 	}
 
 	@Override
@@ -244,13 +245,12 @@ public class OrderDaoImpl implements OrderDao {
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-							.setOrderNumber(ORDER_NUMBER)
 							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
 							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
 							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
 							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(6).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(7)).setUserId(resultSet.getLong(8)).build();
+									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
 					result = Optional.ofNullable(order);
 				}
 			}
@@ -259,6 +259,80 @@ public class OrderDaoImpl implements OrderDao {
 			throw new DaoException("Exception when find by user id", e);
 		}
 		return result;
+	}
+
+	@Override
+	public List<Long> findCarsIdByUserId(long userId) throws DaoException {
+		logger.log(Level.INFO, "method findByUserId()");
+		List<Long> listCarsId = new ArrayList<>();
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_CAR_ID_BY_USER_ID)) {
+			statement.setLong(1, userId);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					listCarsId.add(resultSet.getLong(CAR_ID));
+				}
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method findByUserId()", e);
+			throw new DaoException("Exception when find by user id", e);
+		}
+		return listCarsId;
+	}
+	
+	@Override
+	public List<Order> findByUserIdAndLimit(long userId, int leftBorder, int numberOfLines) throws DaoException {
+		logger.log(Level.INFO, "method findByUserIdAndLimit()");
+		List<Order> listOrders = new ArrayList<>();
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_ORDERS_BY_USER_ID_AND_LIMIT)) {
+			statement.setLong(1, userId);
+			statement.setInt(2, leftBorder);
+			statement.setInt(3, numberOfLines);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
+							.setOrderStatus(
+									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+					listOrders.add(order);
+				}
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method findByUserIdAndLimit()", e);
+			throw new DaoException("Exception when find orders by user id and limit", e);
+		}
+		return listOrders;
+	}
+	
+	@Override
+	public List<Order> findByLimit(int leftBorder, int numberOfLines) throws DaoException {
+		logger.log(Level.INFO, "method findByLimit()");
+		List<Order> listOrders = new ArrayList<>();
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_FIND_ORDERS_BY_LIMIT)) {
+			statement.setInt(1, leftBorder);
+			statement.setInt(2, numberOfLines);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
+							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
+							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
+							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
+							.setOrderStatus(
+									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
+							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
+					listOrders.add(order);
+				}
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new DaoException("Exception when find orders by limit", e);
+		}
+		return listOrders;
 	}
 
 	@Override
@@ -273,6 +347,42 @@ public class OrderDaoImpl implements OrderDao {
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new DaoException("Exception when update status", e);
+		}
+		return result;
+	}
+
+	@Override
+	public int countOrders(long userId) throws DaoException {
+		logger.log(Level.INFO, "method countOrders()");
+		int result = 0;
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_COUNT_ORDERS_TO_USER);) {
+			statement.setLong(1, userId);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					result = resultSet.getInt(COUNT_ORDERS);
+				}
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method countOrders()", e);
+			throw new DaoException("Exception when count orders", e);
+		}
+		return result;
+	}
+
+	@Override
+	public int countOrders() throws DaoException {
+		logger.log(Level.INFO, "method countOrders()");
+		int result = 0;
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_COUNT_ORDERS);
+				ResultSet resultSet = statement.executeQuery()) {
+			while (resultSet.next()) {
+				result = resultSet.getInt(COUNT_ORDERS);
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method countOrders()", e);
+			throw new DaoException("Exception when count orders", e);
 		}
 		return result;
 	}

@@ -40,18 +40,19 @@ public final class ColumnName {
 	public static final String CAR_STATUS_NAME = "car_status";
 	// Table: "orders"
 	public static final String ORDER_ID = "order_id";
-	public static final String ORDER_NUMBER = "order_number";
 	public static final String ORDER_PRICE = "price";
 	public static final String ORDER_PICK_UP_DATE = "pick_up_date";
 	public static final String ORDER_RETURN_DATE = "return_date";
 	public static final String ORDER_STATUS = "order_status_id";
 	public static final String ORDER_CAR = "car_id";
 	public static final String ORDER_USER = "user_id";
+	public static final String COUNT_ORDERS = "count_orders";
 	// Table: "order_status"
 	public static final String ORDER_STATUS_ID = "order_status_id";
 	public static final String ORDER_STATUS_NAME = "order_status";
-	public static final String COUNT_ORDERS = "count_orders";
-
+    // Table: "payment_card"
+	public static final String PAYMENT_CARD_BALANCE = "balance";
+	
 	private ColumnName() {
 	}
 }
