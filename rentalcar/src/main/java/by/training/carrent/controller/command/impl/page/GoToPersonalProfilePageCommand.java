@@ -16,7 +16,7 @@ public class GoToPersonalProfilePageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
 
 	@Override
-	public Router execute(HttpServletRequest request) {//TODO role
+	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
 		Router router;
 		HttpSession session = request.getSession();

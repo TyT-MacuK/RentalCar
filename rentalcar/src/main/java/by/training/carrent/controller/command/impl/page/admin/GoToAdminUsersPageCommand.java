@@ -1,6 +1,4 @@
-package by.training.carrent.controller.command.impl.page;
-
-import java.util.List;
+package by.training.carrent.controller.command.impl.page.admin;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -14,28 +12,27 @@ import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.RequestParameter;
 import by.training.carrent.exception.ServiceException;
-import by.training.carrent.model.entity.Car;
-import by.training.carrent.model.service.impl.CarServiceImpl;
+import by.training.carrent.model.entity.User;
+import by.training.carrent.model.service.impl.UserServiceImpl;
 
 import static by.training.carrent.controller.command.SessionAttribute.*;
 
-public class GoToHomePageCommand implements Command {
-	private static final Logger logger = LogManager.getLogger();
-	private static final String ENGLISH = "en";
-	private static final int LIMIT_CARS_ON_PAGE = 3;
+import java.util.List;
 
+public class GoToAdminUsersPageCommand implements Command {
+	private static final Logger logger = LogManager.getLogger();
+	private static final int LIMIT_ORDERS_ON_PAGE = 3;
+	
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
-		Router router;
 		HttpSession session = request.getSession();
-		session.setAttribute(PREVIOUS_PAGE, PagePath.HOME_PAGE_REDIRECT);
-		if (session.getAttribute(LOCALE) == null) {
-			session.setAttribute(LOCALE, ENGLISH);
+		User user = (User) session.getAttribute(USER);
+		if (user.getRole() != User.UserRole.ADMIN) {
+			return new Router(PagePath.ERROR_403_PAGE);
 		}
-		if (session.getAttribute(IS_AUTHENTICATED) == null) {
-			session.setAttribute(IS_AUTHENTICATED, false);
-		}
+		Router router;
+		session.setAttribute(PREVIOUS_PAGE, PagePath.ADMIN_USERS_REDIRECT);
 		String page = request.getParameter(RequestParameter.CURRENT_PAGE_NUMBER);
 		int currentPageNumber;
 		if (page != null) {
@@ -43,21 +40,20 @@ public class GoToHomePageCommand implements Command {
 		} else {
 			currentPageNumber = 1;
 		}
-		int leftBorderCars = (LIMIT_CARS_ON_PAGE * (currentPageNumber - 1));
+		UserServiceImpl service = UserServiceImpl.getInstance();
 		try {
-			CarServiceImpl service = CarServiceImpl.getInstance();
-			double numberOfCars = service.countCars();
-			double maxNumberOfPages = Math.ceil(numberOfCars / LIMIT_CARS_ON_PAGE);
-			List<Car> cars = service.findByLimit(leftBorderCars, LIMIT_CARS_ON_PAGE);
+			double numberOfUsers = service.countUsers();
+			double maxNumberOfPages = Math.ceil(numberOfUsers / LIMIT_ORDERS_ON_PAGE);
+			int leftBorderUsers = (LIMIT_ORDERS_ON_PAGE * (currentPageNumber - 1));
+			List<User> users = service.findByLimit(leftBorderUsers, LIMIT_ORDERS_ON_PAGE);
 			session.setAttribute(CURRENT_PAGE_NUMBER, currentPageNumber);
 			session.setAttribute(MAX_NUMBER_OF_PAGES, maxNumberOfPages);
-			session.setAttribute(RequestParameter.LIST_CARS, cars);
-			router = new Router(PagePath.HOME_PAGE);
+			session.setAttribute(RequestParameter.LIST_USERS, users);
+			router = new Router(PagePath.ADMIN_USERS_PAGE);
 		} catch (ServiceException e) {
-			logger.log(Level.ERROR, "error on home page: ", e);
+			logger.log(Level.ERROR, "error on users page: ", e);
 			router = new Router(PagePath.ERROR_500_PAGE);
 		}
 		return router;
 	}
-
 }
