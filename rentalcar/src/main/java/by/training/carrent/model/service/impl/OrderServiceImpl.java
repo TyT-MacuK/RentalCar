@@ -37,15 +37,15 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public boolean add(Map<String, String> parameters) throws ServiceException {
 		logger.log(Level.INFO, "method add()");
-		boolean result = false;
 		try {
-			String orderNumber = parameters.get(ORDER_NUMBER);
 			LocalDate pickUpDate = LocalDate.parse(parameters.get(PICK_UP_DATE));
 			LocalDate returnDate = LocalDate.parse(parameters.get(RETURN_DATE));
 			long carId = Long.parseLong(parameters.get(CAR_ID));
 			long userId = Long.parseLong(parameters.get(USER_ID));
-			int discount = Integer.parseInt(parameters.get(DISCOUNT));
-
+			int userDiscount = Integer.parseInt(parameters.get(USER_DISCOUNT));
+			int carDiscount = Integer.parseInt(parameters.get(CAR_DISCOUNT));
+			int discount = userDiscount > carDiscount ? userDiscount : carDiscount;
+			
 			Duration leaseDurationInSeconds = Duration.between(pickUpDate.atStartOfDay(), returnDate.atStartOfDay());
 			int periodOfRent = (int) (leaseDurationInSeconds.getSeconds() / SECONDS_IN_ONE_DAY);
 
@@ -55,17 +55,47 @@ public class OrderServiceImpl implements OrderService {
 				BigDecimal moneyDiscount = cost.multiply(BigDecimal.valueOf(discount / HUNDRED_PERCENT));
 				cost = cost.subtract(moneyDiscount.setScale(0, RoundingMode.UP));
 			}
-			Order order = new Order.Builder().setOrderNumber(orderNumber).setPrice(cost).setPickUpDate(pickUpDate).setReturnDate(returnDate)
+			Order order = new Order.Builder().setPrice(cost).setPickUpDate(pickUpDate).setReturnDate(returnDate)
 					.setOrderStatus(Order.OrderStatus.AWAITS_PAYMENT).setCarId(carId).setUserId(userId).build();
-			result = orderDao.add(order);
+			return orderDao.add(order);
 
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method add()", e);
 			throw new ServiceException("Exception when add order", e);
 		}
-		return result;
 	}
+	
+	@Override
+	public long addAndReturnId(Map<String, String> parameters) throws ServiceException {
+		logger.log(Level.INFO, "method addAndReturnId()");
+		try {
+			LocalDate pickUpDate = LocalDate.parse(parameters.get(PICK_UP_DATE));
+			LocalDate returnDate = LocalDate.parse(parameters.get(RETURN_DATE));
+			long carId = Long.parseLong(parameters.get(CAR_ID));
+			long userId = Long.parseLong(parameters.get(USER_ID));
+			int userDiscount = Integer.parseInt(parameters.get(USER_DISCOUNT));
+			int carDiscount = Integer.parseInt(parameters.get(CAR_DISCOUNT));
+			int discount = userDiscount > carDiscount ? userDiscount : carDiscount;
+			
+			Duration leaseDurationInSeconds = Duration.between(pickUpDate.atStartOfDay(), returnDate.atStartOfDay());
+			int periodOfRent = (int) (leaseDurationInSeconds.getSeconds() / SECONDS_IN_ONE_DAY);
 
+			BigDecimal cost = new BigDecimal(parameters.get(CAR_COST));
+			cost = cost.multiply(new BigDecimal(periodOfRent));
+			if (discount > 0) {
+				BigDecimal moneyDiscount = cost.multiply(BigDecimal.valueOf(discount / HUNDRED_PERCENT));
+				cost = cost.subtract(moneyDiscount.setScale(0, RoundingMode.UP));
+			}
+			Order order = new Order.Builder().setPrice(cost).setPickUpDate(pickUpDate).setReturnDate(returnDate)
+					.setOrderStatus(Order.OrderStatus.AWAITS_PAYMENT).setCarId(carId).setUserId(userId).build();
+			return orderDao.addAndReturnId(order);
+
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method addAndReturnId()", e);
+			throw new ServiceException("Exception when add order and return id", e);
+		}
+	}
+/*
 	@Override
 	public List<Order> findAll() throws ServiceException {
 		logger.log(Level.INFO, "method findAll()");
@@ -74,6 +104,30 @@ public class OrderServiceImpl implements OrderService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method findAll()", e);
 			throw new ServiceException("Exception when find all orders", e);
+		}
+	}
+	*/
+
+	@Override
+	public List<Order> findByUserIdAndLimit(long userId, int leftBorder, int numberOfLines) throws ServiceException {
+		logger.log(Level.INFO, "method findByUserIdAndLimit()");
+		try {
+			return orderDao.findByUserIdAndLimit(userId, leftBorder, numberOfLines);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method findByUserIdAndLimit()", e);
+			throw new ServiceException("Exception when find orders by user id and limit", e);
+		}
+	}
+	
+
+	@Override
+	public List<Order> findByLimit(int leftBorder, int numberOfLines) throws ServiceException {
+		logger.log(Level.INFO, "method findByLimit()");
+		try {
+			return orderDao.findByLimit(leftBorder, numberOfLines);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new ServiceException("Exception when find orders by limit", e);
 		}
 	}
 
@@ -85,17 +139,6 @@ public class OrderServiceImpl implements OrderService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method findById()", e);
 			throw new ServiceException("Exception when find orders by id", e);
-		}
-	}
-	
-	@Override
-	public Optional<Order> findByOrderNumber(String orderNumber) throws ServiceException {
-		logger.log(Level.INFO, "method findByOrderNumber()");
-		try {
-			return orderDao.findByOrderNumber(orderNumber);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByOrderNumber()", e);
-			throw new ServiceException("Exception when find order by number", e);
 		}
 	}
 
@@ -111,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public Optional<Order> findByCarId(long carId) throws ServiceException {
+	public List<Order> findByCarId(long carId) throws ServiceException {
 		logger.log(Level.INFO, "method findByCarId()");
 		try {
 			return orderDao.findByCarId(carId);
@@ -120,15 +163,15 @@ public class OrderServiceImpl implements OrderService {
 			throw new ServiceException("Exception when find orders by car id", e);
 		}
 	}
-
+	
 	@Override
-	public Optional<Order> findByUserId(long userId) throws ServiceException {
-		logger.log(Level.INFO, "method findByUserId()");
+	public List<Long> findCarsIdByUserId(long userId) throws ServiceException {
+		logger.log(Level.INFO, "method findCarsIdByUserId()");
 		try {
-			return orderDao.findByUserId(userId);
+			return orderDao.findCarsIdByUserId(userId);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByUserId()", e);
-			throw new ServiceException("Exception when find orders by user id", e);
+			logger.log(Level.ERROR, "exception in method findCarsIdByUserId()", e);
+			throw new ServiceException("Exception when find cars id by user id", e);
 		}
 	}
 
@@ -140,6 +183,28 @@ public class OrderServiceImpl implements OrderService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new ServiceException("Exception when update status", e);
+		}
+	}
+
+	@Override
+	public int countOrders(long userId) throws ServiceException {
+		logger.log(Level.INFO, "method countOrders()");
+		try {
+			return orderDao.countOrders(userId);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method countOrders()", e);
+			throw new ServiceException("Exception when count orders", e);
+		}
+	}
+
+	@Override
+	public int countOrders() throws ServiceException {
+		logger.log(Level.INFO, "method countOrders()");
+		try {
+			return orderDao.countOrders();
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method countOrders()", e);
+			throw new ServiceException("Exception when count orders", e);
 		}
 	}
 }

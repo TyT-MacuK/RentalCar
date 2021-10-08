@@ -85,17 +85,13 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	@Override
-	public List<User> findAll() throws ServiceException {
-		logger.log(Level.INFO, "method findAll()");
-		try {
-			return userDao.findAll();
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findAll()", e);
-			throw new ServiceException("Exception when find all users", e);
-		}
-	}
-
+	/*
+	 * @Override public List<User> findAll() throws ServiceException {
+	 * logger.log(Level.INFO, "method findAll()"); try { return userDao.findAll(); }
+	 * catch (DaoException e) { logger.log(Level.ERROR,
+	 * "exception in method findAll()", e); throw new
+	 * ServiceException("Exception when find all users", e); } }
+	 */
 	@Override
 	public Optional<User> findById(long userId) throws ServiceException {
 		logger.log(Level.INFO, "method findById()");
@@ -134,6 +130,17 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public List<User> findByLimit(int leftBorder, int numberOfLines) throws ServiceException {
+		logger.log(Level.INFO, "method findByLimit()");
+		try {
+			return userDao.findByLimit(leftBorder, numberOfLines);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new ServiceException("Exception when find user by limit", e);
+		}
 	}
 
 	@Override
@@ -202,12 +209,16 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean updateDiscount(long userId, int discount) throws ServiceException {
 		logger.log(Level.INFO, "method updateDiscount()");
-		try {
-			return userDao.updateDiscount(userId, discount);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateDiscount()", e);
-			throw new ServiceException("Exception when update discount", e);
+		boolean result = false;
+		if (discount >= 0) {
+			try {
+				result = userDao.updateDiscount(userId, discount);
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method updateDiscount()", e);
+				throw new ServiceException("Exception when update discount", e);
+			}
 		}
+		return result;
 	}
 
 	@Override
@@ -255,6 +266,17 @@ public class UserServiceImpl implements UserService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new ServiceException("Exception when update status", e);
+		}
+	}
+
+	@Override
+	public int countUsers() throws ServiceException {
+		logger.log(Level.INFO, "method countUsers()");
+		try {
+			return userDao.countUsers();
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method countUsers()", e);
+			throw new ServiceException("Exception when count users", e);
 		}
 	}
 }

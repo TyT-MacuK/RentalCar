@@ -15,13 +15,15 @@ public interface UserService {
 
 	Optional<User> findByPasswordForAuthentication(String passwordForAuthentication) throws ServiceException;
 
-	List<User> findAll() throws ServiceException;
+	//List<User> findAll() throws ServiceException;
 
 	Optional<User> findById(long userId) throws ServiceException;
 
 	List<User> findByDateOfBirth(LocalDate dateOfBirth) throws ServiceException;
 
 	Optional<User> findByEmailAndPassword(String email, String password) throws ServiceException;
+	
+	List<User> findByLimit(int leftBorder, int numberOfLines) throws ServiceException;
 
 	boolean updatePasswordForAuthentication(long userId, String passwordForAuthentication) throws ServiceException;
 
@@ -38,4 +40,6 @@ public interface UserService {
 	boolean updatePassword(String email, String oldPassword, String newPassword) throws ServiceException;
 
 	boolean updateStatus(long userId, long statusId) throws ServiceException;
+	
+	int countUsers() throws ServiceException;
 }
