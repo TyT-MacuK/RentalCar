@@ -19,6 +19,9 @@
 			<fmt:message key="home_page.heading" />
 		</h1>
 		<div class="row flow-offset-1">
+		<c:if test="${list_empty == true}">
+		<h2><fmt:message key="value_is_not_found" /></h2>
+		</c:if>
 			<c:forEach var="car" items="${cars}">
 				<div class="col-xs-6 col-md-4">
 					<div class="product tumbnail thumbnail-3">
@@ -70,6 +73,6 @@
 		</div>
 	</div>
 	<br/>
-	<pgn:pagination maxPage="${max_number_of_pages}" page="${page}" />
+	<pgn:pagination currentPage="${current_page}" maxPage="${max_number_of_pages}" pageType = 'home' />
 </body>
 </html>

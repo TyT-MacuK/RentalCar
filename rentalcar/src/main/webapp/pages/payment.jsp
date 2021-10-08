@@ -35,6 +35,11 @@
 				<button type="submit" class="btn btn-primary">
 					<fmt:message key="submit" />
 				</button>
+				<c:if test="${not_enough_money == true}">
+					<p class="text-danger">
+						<fmt:message key="payment.not_enough_money" />
+					</p>
+				</c:if>
 			</form>
 		</div>
 	</div>

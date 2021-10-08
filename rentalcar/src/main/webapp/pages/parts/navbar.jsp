@@ -14,15 +14,18 @@
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 				<c:if test="${is_authenticated}">
 					<li class="nav-item"><a class="nav-link active"
-						aria-current="page" href="${pageContext.request.contextPath}/controller?command=to_personal_profile_page_command">
-						<fmt:message key="navbar.profile" /></a>
-					</li>
-					
+						aria-current="page"
+						href="${pageContext.request.contextPath}/controller?command=to_personal_profile_page_command">
+							<fmt:message key="navbar.profile" />
+					</a></li>
+
 				</c:if>
 				<c:if test="${is_authenticated && user.getRole() == 'USER'}">
-				<li class="nav-item"><a class="nav-link active"
-						aria-current="page" href="#"><fmt:message key="navbar.orders" /></a>
-					</li>
+					<li class="nav-item"><a class="nav-link active"
+						aria-current="page"
+						href="${pageContext.request.contextPath}/controller?command=to_orders_page_command">
+							<fmt:message key="navbar.orders" />
+					</a></li>
 				</c:if>
 				<c:if test="${is_authenticated == false}">
 					<li class="nav-item"><a class="nav-link active"
@@ -32,19 +35,19 @@
 					</a></li>
 				</c:if>
 				<c:if test="${is_authenticated && user.getRole() == 'ADMIN'}">
-				<li class="nav-item"><a class="nav-link active"
+					<li class="nav-item"><a class="nav-link active"
 						aria-current="page"
-						href="${pageContext.request.contextPath}/controller?command=users_command">
+						href="${pageContext.request.contextPath}/controller?command=to_admin_users_page_command">
 							<fmt:message key="navbar.users" />
 					</a></li>
 					<li class="nav-item"><a class="nav-link active"
 						aria-current="page"
-						href="${pageContext.request.contextPath}/controller?command=cars_command">
+						href="${pageContext.request.contextPath}/controller?command=to_admin_cars_page_command">
 							<fmt:message key="navbar.cars" />
 					</a></li>
 					<li class="nav-item"><a class="nav-link active"
 						aria-current="page"
-						href="${pageContext.request.contextPath}/controller?command=orders_command">
+						href="${pageContext.request.contextPath}/controller?command=to_admin_orders_page_command">
 							<fmt:message key="navbar.orders" />
 					</a></li>
 				</c:if>
@@ -71,12 +74,24 @@
 						</a></li>
 					</ul></li>
 			</ul>
-			<form class="d-flex">
-				<input class="form-control me-2" type="search"
+			
+
+			
+			<form class="d-flex" action="${pageContext.request.contextPath}/controller"
+					method="post">
+					<input type="hidden" name="command"
+						value="find_manufacturer_by_id_command">
+				<input class="form-control me-2" name="manufacturer" type="search"
 					placeholder=<fmt:message key="navbar.search_field"/>
-					aria-label="Search">
+					aria-label="Search" required
+						pattern="^[a-zA-Z]+$">
+				<c:if test="${car_manufacturer_incorrect == true}">
+					<p class="text-danger">
+						<fmt:message key="change.error" />
+					</p>
+				</c:if>
 				<button class="btn btn-outline-success" type="submit">
-					<fmt:message key="navbar.search" />
+					<fmt:message key="search" />
 				</button>
 			</form>
 		</div>

@@ -64,8 +64,11 @@
 					<c:if test="${booked == true}">
 					     <p class="text-danger"><fmt:message key="page.make_order.car_booked"/></p>
 					</c:if>
-					<c:if test="${wrong_date == true}">
-					     <p class="text-danger"><fmt:message key="page.make_order.wrong_date"/></p>
+					<c:if test="${incorrect_date == true}">
+					     <p class="text-danger"><fmt:message key="page.make_order.incorrect_date"/></p>
+					</c:if>
+					<c:if test="${pick_up_date_is_before_return_date == true}">
+					     <p class="text-danger"><fmt:message key="page.make_order.pick_up_date_is_before_return_date"/></p>
 					</c:if>
 					<br />
 					<button type="submit" class="btn btn-primary">
