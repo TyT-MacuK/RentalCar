@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-//TODO transactions
 
 class ProxyConnection implements Connection {
 	private Connection connection;
@@ -33,7 +32,10 @@ class ProxyConnection implements Connection {
 	}
 
 	@Override
-	public void close() {//TODO transactions
+	public void close() throws SQLException {
+		if(!getAutoCommit()) {
+			 setAutoCommit(true);
+		}
 		ConnectionPool.getInstance().releaseConnection(this);
 	}
 
