@@ -21,12 +21,6 @@ public class CodeGenerator {
 	/** The Constant MAX_BORDER_TO_REGISTRATION. */
 	private static final int MAX_BORDER_TO_REGISTRATION = 9999;
 	
-	/** The Constant MIN_BORDER_TO_ORDER_NUMBER. */
-	private static final int MIN_BORDER_TO_ORDER_NUMBER = 1000000;
-	
-	/** The Constant MAX_BORDER_TO_ORDER_NUMBER. */
-	private static final int MAX_BORDER_TO_ORDER_NUMBER = 9999999;
-	
 	/**
 	 * Instantiates a new register code generator.
 	 */
@@ -52,16 +46,4 @@ public class CodeGenerator {
 		int code = (int) (Math.random() * (MAX_BORDER_TO_REGISTRATION - MIN_BORDER_TO_REGISTRATION)) + MIN_BORDER_TO_REGISTRATION;
 		return String.valueOf(code);
 	}
-	
-	/**
-	 * Generate order number.
-	 *
-	 * @return the string
-	 */
-	public String generateOrderNumber() {
-		logger.log(Level.INFO, "method generateCode()");
-		int code = (int) (Math.random() * (MAX_BORDER_TO_ORDER_NUMBER - MIN_BORDER_TO_ORDER_NUMBER)) + MIN_BORDER_TO_ORDER_NUMBER;
-		return String.valueOf(code);
-	}
-
 }
