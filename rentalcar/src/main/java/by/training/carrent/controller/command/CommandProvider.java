@@ -19,6 +19,14 @@ import by.training.carrent.controller.command.impl.change.ChangeLanguageToRussia
 import by.training.carrent.controller.command.impl.change.ChangeLastNameCommand;
 import by.training.carrent.controller.command.impl.change.ChangePasswordCommand;
 import by.training.carrent.controller.command.impl.change.ChangePhoneNumberCommand;
+import by.training.carrent.controller.command.impl.change.admin.ChangUserStatusCommand;
+import by.training.carrent.controller.command.impl.change.admin.ChangeCarCostCommand;
+import by.training.carrent.controller.command.impl.change.admin.ChangeCarDiscountCommand;
+import by.training.carrent.controller.command.impl.change.admin.ChangeCarStatusCommand;
+import by.training.carrent.controller.command.impl.change.admin.ChangeOrderStatus;
+import by.training.carrent.controller.command.impl.change.admin.ChangeUserDiscountCommand;
+import by.training.carrent.controller.command.impl.find.FindCarByManufacturerCommand;
+import by.training.carrent.controller.command.impl.find.admin.FindOrderByIdCommand;
 import by.training.carrent.controller.command.impl.page.GoToCodeEnteryPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToErrorPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToChangeEmailPageCommand;
@@ -28,9 +36,15 @@ import by.training.carrent.controller.command.impl.page.GoToChangePasswordPageCo
 import by.training.carrent.controller.command.impl.page.GoToChangePhoneNumberPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToHomePageCommand;
 import by.training.carrent.controller.command.impl.page.GoToMakeOrderPageCommand;
+import by.training.carrent.controller.command.impl.page.GoToOrdersPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToPersonalProfilePageCommand;
 import by.training.carrent.controller.command.impl.page.GoToSignInPageCommand;
 import by.training.carrent.controller.command.impl.page.GoToSignUpPageCommand;
+import by.training.carrent.controller.command.impl.page.admin.AdminAddCarCommand;
+import by.training.carrent.controller.command.impl.page.admin.GoToAdminAddCarPageCommand;
+import by.training.carrent.controller.command.impl.page.admin.GoToAdminCarsPageCommand;
+import by.training.carrent.controller.command.impl.page.admin.GoToAdminOrdersPageCommand;
+import by.training.carrent.controller.command.impl.page.admin.GoToAdminUsersPageCommand;
 
 import static by.training.carrent.controller.command.CommandType.*;
 
@@ -52,6 +66,7 @@ public class CommandProvider {
 		commands.put(TO_MAKE_ORDER_PAGE_COMMAND, new GoToMakeOrderPageCommand());
 		commands.put(MAKE_ORDER_PAGE, new MakeOrderCommand());
 		commands.put(PAYMENT_ENTRY_PAGE, new PaymentCommand());
+		commands.put(TO_ORDERS_PAGE_COMMAND, new GoToOrdersPageCommand());
 		commands.put(TO_ERROR_PAGE, new GoToErrorPageCommand());
 		commands.put(CHANGE_LANGUAGE_TO_ENGLISH_COMMAND, new ChangeLanguageToEnglishCommand());
 		commands.put(CHANGE_LANGUAGE_TO_RUSSIAN_COMMAND, new ChangeLanguageToRussianCommand());	
@@ -65,6 +80,19 @@ public class CommandProvider {
 		commands.put(CHANGE_EMAIL_PAGE, new ChangeEmailCommand());
 		commands.put(TO_CHANGE_PASSWORD_PAGE_COMMAND, new GoToChangePasswordPageCommand());
 		commands.put(CHANGE_PASSWORD_PAGE, new ChangePasswordCommand());
+		commands.put(TO_ADMIN_USERS_PAGE_COMMAND, new GoToAdminUsersPageCommand());
+		commands.put(CHANGE_USER_STATUS_COMMAND, new ChangUserStatusCommand());
+		commands.put(CHANGE_USER_DISCOUNT_COMMAND, new ChangeUserDiscountCommand());
+		commands.put(TO_ADMIN_ORDERS_PAGE_COMMAND, new GoToAdminOrdersPageCommand());
+		commands.put(CHANGE_ORDER_STATUS_COMMAND, new ChangeOrderStatus());
+		commands.put(FIND_ORDER_BY_ID_COMMAND, new FindOrderByIdCommand());
+		commands.put(FIND_MANUFACTURER_BY_ID_COMMAND, new FindCarByManufacturerCommand());
+		commands.put(TO_ADMIN_CARS_PAGE_COMMAND, new GoToAdminCarsPageCommand());
+		commands.put(CHANGE_CAR_DISCOUNT_COMMAND, new ChangeCarDiscountCommand());
+		commands.put(CHANGE_CAR_COST_COMMAND, new ChangeCarCostCommand());
+		commands.put(CHANGE_CAR_STATUS_COMMAND, new ChangeCarStatusCommand());
+		commands.put(ADMIN_ADD_CAR_PAGE, new AdminAddCarCommand());
+		commands.put(TO_ADMIN_ADD_CAR_PAGE_COMMAND, new GoToAdminAddCarPageCommand());
 	}
 
 	public static CommandProvider getInstance() {
