@@ -21,8 +21,7 @@ public class User extends AbstractEntity {
 	 */
 	public enum UserRole {
 		ADMIN, 
-		USER, 
-		GUEST //TODO ???
+		USER
 	}
 
 	/** The user id. */

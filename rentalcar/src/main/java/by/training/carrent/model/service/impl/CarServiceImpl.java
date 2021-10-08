@@ -38,13 +38,6 @@ public class CarServiceImpl implements CarService {
 	public static CarServiceImpl getInstance() {
 		return instance;
 	}
-	/*
-	 * @Override public List<Car> findAll() throws ServiceException {
-	 * logger.log(Level.INFO, "method findAll()"); try { return carDao.findAll(); }
-	 * catch (DaoException e) { logger.log(Level.ERROR,
-	 * "exception in method findAll()", e); throw new
-	 * ServiceException("Exception when find all cars", e); } }
-	 */
 
 	@Override
 	public boolean add(Map<String, String> parametrs, Part part) throws ServiceException {
@@ -65,7 +58,7 @@ public class CarServiceImpl implements CarService {
 			Car car = new Car.Builder().setModel(model)
 					.setCarManufacturer(Car.CarManufacturer.valueOf(manufacturer.toUpperCase()))
 					.setYear(Integer.parseInt(year))
-					.setConditioner(conditioner != null ? true : false)
+					.setConditioner(conditioner != null)
 					.setImageUrl(imagePath)
 					.setCarTransmission(Car.CarTransmission.valueOf(transmission.toUpperCase()))
 					.setCost(new BigDecimal(cost))
