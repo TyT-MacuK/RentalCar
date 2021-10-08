@@ -15,11 +15,10 @@
 		<body-content>empty</body-content>
 
 		<attribute>
-			<name>page</name>
+			<name>currentPage</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Integer</type>
-			s
 		</attribute>
 
 		<attribute>
@@ -27,6 +26,13 @@
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Integer</type>
+		</attribute>
+		
+		<attribute>
+			<name>pageType</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 	</tag>
 </taglib>
