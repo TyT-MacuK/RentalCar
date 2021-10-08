@@ -2,7 +2,6 @@ package by.training.carrent.model.entity;
 
 import java.math.BigDecimal;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Car.
  */

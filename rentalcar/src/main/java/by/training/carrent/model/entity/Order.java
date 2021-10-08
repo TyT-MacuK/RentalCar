@@ -19,9 +19,6 @@ public class Order extends AbstractEntity {
 
 	/** The order id. */
 	private long orderId;
-	
-	/** The order number. */
-	private String orderNumber;
 
 	/** The price. */
 	private BigDecimal price;
@@ -58,10 +55,9 @@ public class Order extends AbstractEntity {
 	 * @param carId      the car id
 	 * @param userId     the user id
 	 */
-	public Order(long orderId, String orderNumber, BigDecimal price, LocalDate pickUpDate, LocalDate returnDate, OrderStatus status,
+	public Order(long orderId, BigDecimal price, LocalDate pickUpDate, LocalDate returnDate, OrderStatus status,
 			long carId, long userId) {
 		this.orderId = orderId;
-		this.orderNumber = orderNumber;
 		this.price = price;
 		this.pickUpDate = pickUpDate;
 		this.returnDate = returnDate;
@@ -86,24 +82,6 @@ public class Order extends AbstractEntity {
 	 */
 	public void setOrderId(long orderId) {
 		this.orderId = orderId;
-	}
-	
-	/**
-	 * Gets the order number.
-	 *
-	 * @return the order number
-	 */
-	public String getOrderNumber() {
-		return orderNumber;
-	}
-
-	/**
-	 * Sets the order number.
-	 *
-	 * @param orderNumber the new order number
-	 */
-	public void setOrderNumber(String orderNumber) {
-		this.orderNumber = orderNumber;
 	}
 
 	/**
@@ -223,7 +201,6 @@ public class Order extends AbstractEntity {
 		int prime = 31;
 		int result = 1;
 		result = prime * result + Long.hashCode(orderId);
-		result = prime * result + orderNumber.hashCode();
 		result = prime * result + price.hashCode();
 		result = prime * result + pickUpDate.hashCode();
 		result = prime * result + returnDate.hashCode();
@@ -251,13 +228,6 @@ public class Order extends AbstractEntity {
 		}
 		Order order = (Order) object;
 		if (orderId != order.orderId) {
-			return false;
-		}
-		if (orderNumber == null) {
-			if (order.orderNumber != null) {
-				return false;
-			}
-		} else if (!orderNumber.equals(order.orderNumber)) {
 			return false;
 		}
 		if (price == null) {
@@ -298,7 +268,6 @@ public class Order extends AbstractEntity {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("[Order : id = ").append(orderId);
-		builder.append(", order number = ").append(orderNumber);
 		builder.append(", price = ").append(price);
 		builder.append(", pick up date = ").append(pickUpDate);
 		builder.append(", return date = ").append(returnDate);
@@ -332,17 +301,6 @@ public class Order extends AbstractEntity {
 		 */
 		public Builder setOrderId(long orderId) {
 			order.setOrderId(orderId);
-			return this;
-		}
-		
-		/**
-		 * Sets the order number.
-		 *
-		 * @param orderNumber the order number
-		 * @return the builder
-		 */
-		public Builder setOrderNumber(String orderNumber) {
-			order.setOrderNumber(orderNumber);
 			return this;
 		}
 
