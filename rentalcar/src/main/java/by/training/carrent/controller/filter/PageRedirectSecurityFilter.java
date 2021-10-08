@@ -14,24 +14,25 @@ import javax.servlet.http.HttpServletResponse;
 
 import by.training.carrent.controller.command.PagePath;
 
-@WebFilter(urlPatterns = { "/pages/jsp/*" }, initParams = {//TODO doesn't work pattern
-		@WebInitParam(name = "INDEX_PATH", value = "/index.jsp") })
+@WebFilter(urlPatterns = { "/pages/*" }, initParams = { @WebInitParam(name = "INDEX_PATH", value = "/index.jsp") })
 public class PageRedirectSecurityFilter implements Filter {
 	private String indexPath;
-	
+
+	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
 		indexPath = fConfig.getInitParameter("INDEX_PATH");
 	}
 
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		String s = httpRequest.getContextPath().concat(indexPath);
 		httpResponse.sendRedirect(httpRequest.getContextPath() + indexPath);
 		chain.doFilter(request, response);
 	}
 
+	@Override
 	public void destroy() {
 		indexPath = null;
 	}
