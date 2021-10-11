@@ -39,5 +39,7 @@ public interface CarService {
 
 	boolean updateStatus(long carId, long carStatusId) throws ServiceException;
 	
+	void updateStatusOfCarsByListId(List<Long> carsId) throws ServiceException;
+	
 	int countCars() throws ServiceException;
 }

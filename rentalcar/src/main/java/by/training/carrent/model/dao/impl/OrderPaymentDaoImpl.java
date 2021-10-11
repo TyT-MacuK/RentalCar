@@ -53,7 +53,6 @@ public class OrderPaymentDaoImpl implements OrderPaymentDao {
 					statement.setString(3, cvv);
 					result = statement.executeUpdate() > 0;
 					connection.commit();
-					connection.close();
 				}
 			} else {
 				logger.log(Level.ERROR, "not enough money in the account");
@@ -68,6 +67,15 @@ public class OrderPaymentDaoImpl implements OrderPaymentDao {
 			}
 			logger.log(Level.ERROR, "exception in method payForOrder()", e);
 			throw new DaoException("Exception when try to pay to order", e);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				logger.log(Level.ERROR, "exception in method close()", e);
+				throw new DaoException("Exception when try close connection", e);
+			}
 		}
 		return result;
 	}

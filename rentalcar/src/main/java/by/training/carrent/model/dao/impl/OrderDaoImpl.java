@@ -6,11 +6,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -18,8 +18,10 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.DaoException;
 import by.training.carrent.model.connection.ConnectionPool;
+import by.training.carrent.model.dao.ColumnName;
 import by.training.carrent.model.dao.OrderDao;
 import by.training.carrent.model.entity.Order;
+import by.training.carrent.model.service.UnpaidOrderTimerTask;
 
 public class OrderDaoImpl implements OrderDao {
 	private static final Logger logger = LogManager.getLogger();
@@ -30,11 +32,6 @@ public class OrderDaoImpl implements OrderDao {
 			INSERT INTO orders (price, pick_up_date, return_date, order_status_id, car_id, user_id)
 			VALUES
 			(?, ?, ?, ?, ?, ?)
-			""";
-	private static final String SQL_FIND_ALL = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
-			FROM orders
-			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			""";
 	private static final String SQL_FIND_BY_ID = """
 			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
@@ -76,10 +73,12 @@ public class OrderDaoImpl implements OrderDao {
 			LIMIT ?, ?
 			""";
 	private static final String SQL_FIND_CAR_ID_BY_USER_ID = "SELECT DISTINCT car_id FROM orders WHERE user_id = ?";
+	private static final String SQL_FIND_CARS_ID_WHERE_UNPAID_ORDER = "SELECT DISTINCT car_id FROM orders WHERE order_status_id = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE orders SET order_status_id = ? WHERE order_id = ?";
 	private static final String SQL_COUNT_ORDERS_TO_USER = "SELECT COUNT(order_id) AS count_orders FROM orders WHERE user_id = ?";
 	private static final String SQL_COUNT_ORDERS = "SELECT COUNT(order_id) AS count_orders FROM orders";
 	private static final String SQL_RETURN_ID = "SELECT LAST_INSERT_ID()";
+	private static final String SQL_REJECT_UNPAID_ORDERS = "UPDATE orders SET order_status_id = ? WHERE order_status_id = ?";
 
 	private OrderDaoImpl() {
 	}
@@ -132,25 +131,6 @@ public class OrderDaoImpl implements OrderDao {
 		}
 		return id;
 	}
-
-	/*
-	 * @Override public List<Order> findAll() throws DaoException {
-	 * logger.log(Level.INFO, "method findAll()"); List<Order> listOrders = new
-	 * ArrayList<>(); try (Connection connection =
-	 * ConnectionPool.getInstance().getConnection(); PreparedStatement statement =
-	 * connection.prepareStatement(SQL_FIND_ALL); ResultSet resultSet =
-	 * statement.executeQuery();) { while (resultSet.next()) { Order order = new
-	 * Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-	 * .setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-	 * .setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
-	 * .setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
-	 * .setOrderStatus(Order.OrderStatus.valueOf(resultSet.getString(5).replace(
-	 * SPASE, UNDERSCORE)))
-	 * .setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
-	 * listOrders.add(order); } } catch (SQLException e) { logger.log(Level.ERROR,
-	 * "exception in method findAll()", e); throw new
-	 * DaoException("Exception when find all orders", e); } return listOrders; }
-	 */
 
 	@Override
 	public Optional<Order> findById(Long id) throws DaoException {
@@ -279,7 +259,7 @@ public class OrderDaoImpl implements OrderDao {
 		}
 		return listCarsId;
 	}
-	
+
 	@Override
 	public List<Order> findByUserIdAndLimit(long userId, int leftBorder, int numberOfLines) throws DaoException {
 		logger.log(Level.INFO, "method findByUserIdAndLimit()");
@@ -307,7 +287,7 @@ public class OrderDaoImpl implements OrderDao {
 		}
 		return listOrders;
 	}
-	
+
 	@Override
 	public List<Order> findByLimit(int leftBorder, int numberOfLines) throws DaoException {
 		logger.log(Level.INFO, "method findByLimit()");
@@ -385,5 +365,43 @@ public class OrderDaoImpl implements OrderDao {
 			throw new DaoException("Exception when count orders", e);
 		}
 		return result;
+	}
+
+	@Override
+	public void rejectUnpaidOrders() throws DaoException {
+		logger.log(Level.INFO, "method countOrders()");
+		Connection connection = null;
+		try {
+			connection = ConnectionPool.getInstance().getConnection();
+			connection.setAutoCommit(false);
+			List<Long> carsId = new ArrayList<>();
+			try (PreparedStatement statement = connection.prepareStatement(SQL_FIND_CARS_ID_WHERE_UNPAID_ORDER)) {
+				statement.setLong(1, Order.OrderStatus.AWAITS_PAYMENT.ordinal() + 1);
+				try (ResultSet resultSet = statement.executeQuery()) {
+					while (resultSet.next()) {
+						carsId.add(resultSet.getLong(ColumnName.CAR_ID));
+					}
+				}
+			}
+			CarDaoImpl carDao = CarDaoImpl.getInstance();
+			carDao.updateStatusOfCarsByListId(carsId);
+			try (PreparedStatement statement = connection.prepareStatement(SQL_REJECT_UNPAID_ORDERS);) {
+				statement.setLong(1, Order.OrderStatus.DECLINED.ordinal() + 1);
+				statement.setLong(2, Order.OrderStatus.AWAITS_PAYMENT.ordinal() + 1);
+				statement.executeUpdate();
+			}
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method rejectUnpaidOrders()", e);
+			throw new DaoException("Exception when reject unpaid orders", e);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				logger.log(Level.ERROR, "exception in method close()", e);
+				throw new DaoException("Exception when try close connection", e);
+			}
+		}
 	}
 }

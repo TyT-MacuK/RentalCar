@@ -35,14 +35,6 @@ public class CarDaoImpl implements CarDao {
 			VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?)
 			""";
-	private static final String SQL_FIND_ALL = """
-			 		SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			 		""";
 	private static final String SQL_FIND_CARS_BY_LIMIT = """
 			 		SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
 			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
@@ -115,7 +107,7 @@ public class CarDaoImpl implements CarDao {
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
 			   WHERE car_status.car_status = ?
 					""";
-	private static final String SQL_FIND_CARS_BY_CAR_ID = """
+	private static final String SQL_FIND_CARS_BY_USER_ID = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
 			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
 			   FROM cars
@@ -127,6 +119,7 @@ public class CarDaoImpl implements CarDao {
 	private static final String SQL_UPDATE_DISCOUNT = "UPDATE cars SET discount = ? WHERE car_id = ?";
 	private static final String SQL_UPDATE_COST = "UPDATE cars SET cost = ? WHERE car_id = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE cars SET cars.car_status_id = ? WHERE car_id = ?";
+	private static final String SQL_UPDATE_STATUS_OF_CARS_BY_ID = "UPDATE cars SET car_status_id = ? WHERE car_id IN ";
 	private static final String SQL_COUNT_CARS = "SELECT COUNT(car_id) AS count_cars FROM cars";
 
 	private CarDaoImpl() {
@@ -163,17 +156,6 @@ public class CarDaoImpl implements CarDao {
 		return updateStatus(car.getCarId(), Car.CarStatus.IMPOSSIBLE_TO_RENT.ordinal() + 1);
 	}
 
-	/*
-	 * @Override public List<Car> findAll() throws DaoException {
-	 * logger.log(Level.INFO, "method findAll()"); List<Car> listCars = new
-	 * ArrayList<>(); try (Connection connection =
-	 * ConnectionPool.getInstance().getConnection(); PreparedStatement statement =
-	 * connection.prepareStatement(SQL_FIND_ALL); ResultSet resultSet =
-	 * statement.executeQuery()) { listCars = createListCars(resultSet); } catch
-	 * (SQLException e) { logger.log(Level.ERROR, "exception in method findAll()",
-	 * e); throw new DaoException("Exception when find all cars", e); } return
-	 * listCars; }
-	 */
 	@Override
 	public List<Car> findByLimit(int leftBorder, int numberOfLines) throws DaoException {
 		logger.log(Level.INFO, "method findByLimit()");
@@ -325,10 +307,10 @@ public class CarDaoImpl implements CarDao {
 	public Map<Long, Car> findCarsIdByUserId(List<Long> listCarsId) throws DaoException {
 		logger.log(Level.INFO, "method findCarsById()");
 		Map<Long, Car> mapCars = new HashMap<>();
-		String fuulQuery = makeRequest(listCarsId);
+		String fullQuery = makeRequest(listCarsId, SQL_FIND_CARS_BY_USER_ID);
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				Statement statement = connection.createStatement()) {
-			try (ResultSet resultSet = statement.executeQuery(fuulQuery)) {
+			try (ResultSet resultSet = statement.executeQuery(fullQuery)) {
 				while (resultSet.next()) {
 					Car car = new Car.Builder().setCarId(resultSet.getLong(CAR_ID))
 							.setModel(resultSet.getString(CAR_MODEL)).setDiscount(resultSet.getInt(CAR_DISCOUNT))
@@ -396,6 +378,19 @@ public class CarDaoImpl implements CarDao {
 		return result;
 	}
 
+	public void updateStatusOfCarsByListId(List<Long> carsId) throws DaoException {
+		logger.log(Level.INFO, "method updateStatus()");
+		String fullQuery = makeRequest(carsId, SQL_UPDATE_STATUS_OF_CARS_BY_ID);
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(fullQuery)) {
+			statement.setLong(1, Car.CarStatus.FREE.ordinal() + 1);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method updaupdateStatusteModel()", e);
+			throw new DaoException("Exception when update status", e);
+		}
+	}
+
 	@Override
 	public int countCars() throws DaoException {
 		logger.log(Level.INFO, "method countCars()");
@@ -429,16 +424,20 @@ public class CarDaoImpl implements CarDao {
 		return listCars;
 	}
 
-	private String makeRequest(List<Long> listCarsId) {
-		StringBuilder partOfQuery = new StringBuilder(" (");
-		for (int i = 0; i < listCarsId.size(); i++) {
-			partOfQuery.append(listCarsId.get(i));
-			if (i < listCarsId.size() - 1) {
-				partOfQuery.append(", ");
-			} else {
-				partOfQuery.append(")");
+	private String makeRequest(List<Long> listCarsId, String firstPartOfQuery) {
+		StringBuilder secondPartOfQuery = new StringBuilder(" (");
+		if (!listCarsId.isEmpty()) {
+			for (int i = 0; i < listCarsId.size(); i++) {
+				secondPartOfQuery.append(listCarsId.get(i));
+				if (i < listCarsId.size() - 1) {
+					secondPartOfQuery.append(", ");
+				} else {
+					secondPartOfQuery.append(")");
+				}
 			}
+		} else {
+			secondPartOfQuery.append(0).append(")");
 		}
-		return SQL_FIND_CARS_BY_CAR_ID.concat(partOfQuery.toString());
+			return firstPartOfQuery.concat(secondPartOfQuery.toString());
 	}
 }

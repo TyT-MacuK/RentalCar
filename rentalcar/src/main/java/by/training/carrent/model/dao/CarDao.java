@@ -31,5 +31,7 @@ public interface CarDao extends BaseDao<Long, Car> {
 
 	boolean updateStatus(long carId, long carStatusId) throws DaoException;
 	
+	void updateStatusOfCarsByListId(List<Long> carsId) throws DaoException;
+	
 	int countCars() throws DaoException;
 }

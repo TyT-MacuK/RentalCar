@@ -23,10 +23,12 @@ public interface OrderDao extends BaseDao<Long, Order> {
 	List<Order> findByUserIdAndLimit(long userId, int leftBorder, int numberOfLines) throws DaoException;
 	
 	List<Order> findByLimit(int leftBorder, int numberOfLines) throws DaoException;
-	
+
 	boolean updateStatus(long orderId, long statusId) throws DaoException;
 	
 	int countOrders(long userId) throws DaoException;
 	
-	int countOrders() throws DaoException;
+	int countOrders() throws DaoException; 
+	
+	void rejectUnpaidOrders() throws DaoException;
 }

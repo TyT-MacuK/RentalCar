@@ -13,8 +13,6 @@ public interface OrderService {
 
 	long addAndReturnId(Map<String, String> parameters) throws ServiceException;
 
-	// List<Order> findAll() throws ServiceException;
-
 	Optional<Order> findById(long orderId) throws ServiceException;
 
 	List<Order> findByStatus(String status) throws ServiceException;
@@ -32,4 +30,6 @@ public interface OrderService {
 	int countOrders(long userId) throws ServiceException;
 
 	int countOrders() throws ServiceException;
+	
+	void rejectUnpaidOrders() throws ServiceException;
 }

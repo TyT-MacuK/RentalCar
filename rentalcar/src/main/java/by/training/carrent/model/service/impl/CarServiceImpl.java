@@ -207,6 +207,17 @@ public class CarServiceImpl implements CarService {
 			throw new ServiceException("Exception when update status", e);
 		}
 	}
+	
+	@Override
+	public void updateStatusOfCarsByListId(List<Long> carsId) throws ServiceException {
+		logger.log(Level.INFO, "method updateStatusOfCarsByListId()");
+		try {
+			carDao.updateStatusOfCarsByListId(carsId);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method updateStatusOfCarsByListId()", e);
+			throw new ServiceException("Exception when update status of cars by list of cars id", e);
+		}
+	}
 
 	@Override
 	public int countCars() throws ServiceException {

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Timer;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +18,7 @@ import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.dao.impl.OrderDaoImpl;
 import by.training.carrent.model.entity.Order;
 import by.training.carrent.model.service.OrderService;
+import by.training.carrent.model.service.UnpaidOrderTimerTask;
 
 import static by.training.carrent.controller.command.RequestParameter.*;
 
@@ -26,8 +28,13 @@ public class OrderServiceImpl implements OrderService {
 	private final OrderDaoImpl orderDao = OrderDaoImpl.getInstance();
 	private static final int SECONDS_IN_ONE_DAY = 86400;
 	private static final double HUNDRED_PERCENT = 100;
+	private static final long START_IN_TWO_MINUTES = 120000;
+	private static final long STARTUP_FREQUENCY_IN_FIVE_MINUTES = 300000;
+	private final Timer unpaidOrderTimer;
 
 	private OrderServiceImpl() {
+		unpaidOrderTimer = new Timer();
+		unpaidOrderTimer.schedule(new UnpaidOrderTimerTask(), START_IN_TWO_MINUTES, STARTUP_FREQUENCY_IN_FIVE_MINUTES);
 	}
 
 	public static OrderServiceImpl getInstance() {
@@ -95,18 +102,6 @@ public class OrderServiceImpl implements OrderService {
 			throw new ServiceException("Exception when add order and return id", e);
 		}
 	}
-/*
-	@Override
-	public List<Order> findAll() throws ServiceException {
-		logger.log(Level.INFO, "method findAll()");
-		try {
-			return orderDao.findAll();
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findAll()", e);
-			throw new ServiceException("Exception when find all orders", e);
-		}
-	}
-	*/
 
 	@Override
 	public List<Order> findByUserIdAndLimit(long userId, int leftBorder, int numberOfLines) throws ServiceException {
@@ -119,7 +114,6 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 	
-
 	@Override
 	public List<Order> findByLimit(int leftBorder, int numberOfLines) throws ServiceException {
 		logger.log(Level.INFO, "method findByLimit()");
@@ -205,6 +199,17 @@ public class OrderServiceImpl implements OrderService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method countOrders()", e);
 			throw new ServiceException("Exception when count orders", e);
+		}
+	}
+
+	@Override
+	public void rejectUnpaidOrders() throws ServiceException {
+		logger.log(Level.INFO, "method rejectUnpaidOrders()");
+		try {
+			orderDao.rejectUnpaidOrders();
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method rejectUnpaidOrders()", e);
+			throw new ServiceException("Exception when reject unpaid orders", e);
 		}
 	}
 }
