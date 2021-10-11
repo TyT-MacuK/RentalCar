@@ -24,14 +24,16 @@ import static by.training.carrent.controller.command.RequestParameter.*;
 
 public class PaymentCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
+	private static final String CARD_NUMBER = "card_number";
+	private static final String CVV = "cvv";
 
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "methed execute()");
 		Router router;
 		HttpSession session = request.getSession();
-		String cardNumber = request.getParameter("card_number");
-		String cvv = request.getParameter("cvv");
+		String cardNumber = request.getParameter(CARD_NUMBER);
+		String cvv = request.getParameter(CVV);
 		long orderId = (long) session.getAttribute(SessionAttribute.ORDER_ID);
 		Car car = (Car) session.getAttribute(SessionAttribute.CAR);
 		OrderServiceImpl orderService = OrderServiceImpl.getInstance();
