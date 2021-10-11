@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.Timer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,14 +46,23 @@ public class ConnectionPool {
 	/** The Constant CONNECTION_POOL_SIZE. */
 	private static final int CONNECTION_POOL_SIZE = 4;
 	
+	/** The Constant START_IN_TWO_MINUTES. */
+	private static final long START_IN_TWO_MINUTES = 120000;
+	
+	/** The Constant STARTUP_FREQUENCY_IN_FIVE_MINUTES. */
+	private static final long STARTUP_FREQUENCY_IN_FIVE_MINUTES = 300000;
+	
 	/** The Constant isInitialized. */
 	private static final AtomicBoolean isInitialized = new AtomicBoolean();
 	
 	/** The free connections. */
-	private BlockingQueue<ProxyConnection> freeConnections;
+	private final BlockingQueue<ProxyConnection> freeConnections;
 	
 	/** The given away connections. */
-	private BlockingQueue<ProxyConnection> givenAwayConnections;
+	private final BlockingQueue<ProxyConnection> givenAwayConnections;
+	
+	/** The connection timer. */
+	private final Timer connectionTimer;
 	
 	/** The Constant locker. */
 	private static final Lock locker = new ReentrantLock();
@@ -90,6 +100,8 @@ public class ConnectionPool {
 	private ConnectionPool() {
 		freeConnections = new LinkedBlockingQueue<>(CONNECTION_POOL_SIZE);
 		givenAwayConnections = new LinkedBlockingQueue<>(CONNECTION_POOL_SIZE);
+		connectionTimer = new Timer();
+		connectionTimer.schedule(new ConnectionTimerTask(), START_IN_TWO_MINUTES, STARTUP_FREQUENCY_IN_FIVE_MINUTES);
 		initializeConnectionPool();
 	}
 
@@ -142,6 +154,7 @@ public class ConnectionPool {
 				result = true;
 			} catch (InterruptedException e) {
 				logger.log(Level.ERROR, "exception in method getConnection()", e);
+				 Thread.currentThread().interrupt();
 			}
 		} else {
 			logger.log(Level.ERROR, "error in method releaseConnection()");
@@ -166,11 +179,29 @@ public class ConnectionPool {
 				Thread.currentThread().interrupt();
 			}
 		}
+		connectionTimer.cancel();
 		deregisterDrivers();
 		if (freeConnections.isEmpty()) {
 			result = true;
 		}
 		return result;
+	}
+	
+	/**
+	 * Adds the leaked connections.
+	 */
+	void addLeakedConnections() {
+		int actualQuantityConnections = freeConnections.size() + givenAwayConnections.size();
+		for (int i = 0; i < actualQuantityConnections; i++) {
+			try {
+				Connection connection = DriverManager.getConnection(urlDb, properties);
+				ProxyConnection proxyConnection = new ProxyConnection(connection);
+				freeConnections.offer(proxyConnection);
+			} catch (SQLException e) {
+				logger.log(Level.FATAL, "connection does not create", e);
+				throw new RuntimeException("Fatal error. Connection does not create", e);
+			}
+		}
 	}
 
 	/**
@@ -182,7 +213,7 @@ public class ConnectionPool {
 				DriverManager.deregisterDriver(DriverManager.getDrivers().nextElement());
 			}
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Can not deregister driver", e);
+			logger.log(Level.ERROR, "exception when deregister driver", e);
 		}
 	}
 
