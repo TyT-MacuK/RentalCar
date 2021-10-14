@@ -45,8 +45,8 @@ public class ImageServlet extends HttpServlet {
 			processPart(request, response, part);
 		} else {
 			logger.log(Level.WARN, "user is trying to upload a file that is larger than the available size");
-			request.setAttribute(INVALID_FILE, true);                 //TODO
-			response.sendRedirect(PagePath.ADMIN_ADD_CAR_REDIRECT);
+			request.setAttribute(INVALID_FILE, true);                
+			request.getRequestDispatcher(PagePath.ADMIN_ADD_CAR_PAGE).forward(request, response);
 		}
 	}
 
@@ -63,13 +63,13 @@ public class ImageServlet extends HttpServlet {
 				request.getRequestDispatcher(MAIN_SERVLET).forward(request, response);
 			} else {
 				logger.log(Level.WARN, "user is trying to upload a file that has other type");
-				request.setAttribute(INVALID_FILE, true);                    //TODO
-				response.sendRedirect(PagePath.ADMIN_ADD_CAR_REDIRECT);
+				request.setAttribute(INVALID_FILE, true);                   
+				request.getRequestDispatcher(PagePath.ADMIN_ADD_CAR_PAGE).forward(request, response);
 			}
 		} else {
 			logger.log(Level.WARN, "file is empty");
-			request.setAttribute(INVALID_FILE, true);                           //TODO
-			response.sendRedirect(PagePath.ADMIN_ADD_CAR_REDIRECT);
+			request.setAttribute(INVALID_FILE, true);
+			request.getRequestDispatcher(PagePath.ADMIN_ADD_CAR_PAGE).forward(request, response);
 		}
 	}
 
