@@ -8,13 +8,11 @@ import by.training.carrent.model.entity.Order;
 
 public interface OrderDao extends BaseDao<Long, Order> {
 	
-	boolean add(Order order) throws DaoException;
-	
 	long addAndReturnId(Order order) throws DaoException;
 	
-	List<Order> findByCarId(long carId) throws DaoException;
+	Optional<Order> findById(long orderId) throws DaoException;
 	
-	List<Order> findByStatus(String status) throws DaoException;
+	List<Order> findByCarId(long carId) throws DaoException;
 
 	Optional<Order> findByUserId(long userId) throws DaoException;
 	
