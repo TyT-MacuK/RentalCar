@@ -21,7 +21,6 @@ import static by.training.carrent.controller.command.SessionAttribute.*;
 
 public class GoToHomePageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
-	private static final String ENGLISH = "en";
 	private static final int LIMIT_CARS_ON_PAGE = 3;
 
 	@Override
@@ -30,19 +29,8 @@ public class GoToHomePageCommand implements Command {
 		Router router;
 		HttpSession session = request.getSession();
 		session.setAttribute(PREVIOUS_PAGE, PagePath.HOME_PAGE_REDIRECT);
-		if (session.getAttribute(LOCALE) == null) {
-			session.setAttribute(LOCALE, ENGLISH);
-		}
-		if (session.getAttribute(IS_AUTHENTICATED) == null) {
-			session.setAttribute(IS_AUTHENTICATED, false);
-		}
 		String page = request.getParameter(RequestParameter.CURRENT_PAGE_NUMBER);
-		int currentPageNumber;
-		if (page != null) {
-			currentPageNumber = Integer.parseInt(page);
-		} else {
-			currentPageNumber = 1;
-		}
+		int currentPageNumber = page != null ? Integer.parseInt(page) : 1;
 		int leftBorderCars = (LIMIT_CARS_ON_PAGE * (currentPageNumber - 1));
 		try {
 			CarServiceImpl service = CarServiceImpl.getInstance();
