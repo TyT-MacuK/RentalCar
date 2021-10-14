@@ -46,11 +46,11 @@ public class ConnectionPool {
 	/** The Constant CONNECTION_POOL_SIZE. */
 	private static final int CONNECTION_POOL_SIZE = 4;
 	
-	/** The Constant START_IN_TWO_MINUTES. */
-	private static final long START_IN_TWO_MINUTES = 120000;
+	/** The Constant START_TIME. */
+	private static final long START_TIME = 120000;
 	
-	/** The Constant STARTUP_FREQUENCY_IN_FIVE_MINUTES. */
-	private static final long STARTUP_FREQUENCY_IN_FIVE_MINUTES = 300000;
+	/** The Constant STARTUP_TIME. */
+	private static final long STARTUP_TIME = 300000;
 	
 	/** The Constant isInitialized. */
 	private static final AtomicBoolean isInitialized = new AtomicBoolean();
@@ -90,7 +90,6 @@ public class ConnectionPool {
 			Class.forName(driver);
 		} catch (IOException | ClassNotFoundException e) {
 			logger.log(Level.FATAL, "file cannot be read", e);
-			throw new RuntimeException("Fatal error. Properties file cannot be read", e);
 		}
 	}
 
@@ -101,7 +100,7 @@ public class ConnectionPool {
 		freeConnections = new LinkedBlockingQueue<>(CONNECTION_POOL_SIZE);
 		givenAwayConnections = new LinkedBlockingQueue<>(CONNECTION_POOL_SIZE);
 		connectionTimer = new Timer();
-		connectionTimer.schedule(new ConnectionTimerTask(), START_IN_TWO_MINUTES, STARTUP_FREQUENCY_IN_FIVE_MINUTES);
+		connectionTimer.schedule(new ConnectionTimerTask(), START_TIME, STARTUP_TIME);
 		initializeConnectionPool();
 	}
 
