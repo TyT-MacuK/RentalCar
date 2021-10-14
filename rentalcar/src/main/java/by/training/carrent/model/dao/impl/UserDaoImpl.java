@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.DaoException;
-import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.connection.ConnectionPool;
 import by.training.carrent.model.dao.UserDao;
 import by.training.carrent.model.entity.User;
@@ -33,21 +31,6 @@ public class UserDaoImpl implements UserDao {
 			phone_number, date_of_birth, user_status_id, user_role_id)
 			VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-			""";
-	private static final String SQL_FIND_ALL = """
-			SELECT user_id, email, first_name, last_name, discount, phone_number,
-			 date_of_birth, user_status.user_status, user_role.role
-			 FROM users
-			 JOIN user_status ON users.user_status_id = user_status.user_status_id
-			 JOIN user_role ON users.user_role_id = user_role.role_id;
-			""";
-	private static final String SQL_FIND_BY_ID = """
-			SELECT user_id, email, first_name, last_name, discount, phone_number,
-			 date_of_birth, user_status.user_status, user_role.role
-			 FROM users
-			 JOIN user_status ON users.user_status_id = user_status.user_status_id
-			 JOIN user_role ON users.user_role_id = user_role.role_id
-			 WHERE user_id = ?;
 			""";
 	private static final String SQL_FIND_BY_EMAIL = """
 			SELECT user_id, email, first_name, last_name, discount, phone_number,
@@ -64,14 +47,6 @@ public class UserDaoImpl implements UserDao {
 			 JOIN user_status ON users.user_status_id = user_status.user_status_id
 			 JOIN user_role ON users.user_role_id = user_role.role_id
 			 WHERE password_for_authentication = ?;
-			""";
-	private static final String SQL_FIND_BY_DATE_OF_BIRTH = """
-			SELECT user_id, email, first_name, last_name, discount, phone_number,
-			 date_of_birth, user_status.user_status, user_role.role
-			 FROM users
-			 JOIN user_status ON users.user_status_id = user_status.user_status_id
-			 JOIN user_role ON users.user_role_id = user_role.role_id
-			 WHERE date_of_birth = ?;
 			""";
 	private static final String SQL_FIND_BY_EMAIL_AND_PASSWORD = """
 			SELECT user_id, email, first_name, last_name, discount, phone_number,
@@ -162,67 +137,6 @@ public class UserDaoImpl implements UserDao {
 			throw new DaoException("Exception when find user by password for authentication", e);
 		}
 		return result;
-	}
-
-	/*
-	 * @Override public List<User> findAll() throws DaoException {
-	 * logger.log(Level.INFO, "method findAll()"); List<User> listUsers = new
-	 * ArrayList<>(); try (Connection connection =
-	 * ConnectionPool.getInstance().getConnection(); PreparedStatement statement =
-	 * connection.prepareStatement(SQL_FIND_ALL); ResultSet resultSet =
-	 * statement.executeQuery()) { while (resultSet.next()) { User user = new
-	 * User.Builder().setUserId(resultSet.getLong(USER_ID))
-	 * .setEmail(resultSet.getString(USER_EMAIL)).setFirstName(resultSet.getString(
-	 * USER_FIRST_NAME))
-	 * .setLastName(resultSet.getString(USER_LAST_NAME)).setDiscount(resultSet.
-	 * getInt(USER_DISCOUNT))
-	 * .setPhoneNumber(resultSet.getString(USER_PHONE_NUMBER))
-	 * .setDateOfBirth(resultSet.getDate(USER_DATE_OF_BIRTH).toLocalDate())
-	 * .setStatus(User.UserStatus.valueOf(resultSet.getString(8).replace(SPASE,
-	 * UNDERSCORE)))
-	 * .setRole(User.UserRole.valueOf(resultSet.getString(9))).build();
-	 * listUsers.add(user); } } catch (SQLException e) { logger.log(Level.ERROR,
-	 * "exception in method findAll()", e); throw new
-	 * DaoException("Exception when find all users", e); } return listUsers; }
-	 */
-
-	@Override
-	public Optional<User> findById(Long id) throws DaoException {
-		logger.log(Level.INFO, "method findById()");
-		Optional<User> result = Optional.empty();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ID)) {
-			statement.setLong(1, id);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				result = createOptionalUser(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findById()", e);
-			throw new DaoException("Exception when find user by id", e);
-		}
-		return result;
-	}
-
-	@Override
-	public boolean remove(User user) throws DaoException {
-		return updateStatus(user.getUserId(), User.UserStatus.BANNED.ordinal() + 1);
-	}
-
-	@Override
-	public List<User> findByDateOfBirth(LocalDate dateOfBirth) throws DaoException {
-		logger.log(Level.INFO, "method findByDateOfBirth()");
-		List<User> listUsers = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_DATE_OF_BIRTH)) {
-			statement.setDate(1, Date.valueOf(dateOfBirth));
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listUsers = createListUsers(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByDateOfBirth()", e);
-			throw new DaoException("Exception when find users by date of birth", e);
-		}
-		return listUsers;
 	}
 
 	@Override
