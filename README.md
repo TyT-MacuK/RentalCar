@@ -36,4 +36,4 @@ Admin | Authenticated user |
 +	View order list
 +	Search order
 +	Chang order status
-![database_structure](database_structure.jpg)
+![database_structure](C:\Users\Евгений\git\RentalCar\database_structure.jpg)
