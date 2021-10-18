@@ -36,3 +36,4 @@ Admin | Authenticated user |
 +	View order list
 +	Search order
 +	Chang order status
+![database_structure](database_structure.jpg)
