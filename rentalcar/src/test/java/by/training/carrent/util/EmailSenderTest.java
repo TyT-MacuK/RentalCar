@@ -26,6 +26,9 @@ public class EmailSenderTest {
 			{ null, false } };
 	}
 
+	
+	
+	
 	@Test(description = "Testing method sendMail", dataProvider = "createData")
 	public void sendMailTest(String recipient, boolean expected) throws ServiceException {
 		String code = "TEST";

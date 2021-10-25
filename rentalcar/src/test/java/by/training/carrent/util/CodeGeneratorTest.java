@@ -14,6 +14,9 @@ public class CodeGeneratorTest {
 		codeGenerator = CodeGenerator.getInstance(); 
 	}
 
+	
+	
+	
 	@Test
 	public void generateCodeToRegistrationTest() {
 		String actualCode = codeGenerator.generateCodeToRegistration();
