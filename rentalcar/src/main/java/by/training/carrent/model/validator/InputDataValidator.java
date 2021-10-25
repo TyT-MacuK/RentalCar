@@ -11,10 +11,10 @@ public class InputDataValidator {
 	private static final InputDataValidator instance = new InputDataValidator();
 
 	/** The Constant PASSWORD_REGEX. */
-	private static final String PASSWORD_REGEX = ".{5,64}";
+	private static final String PASSWORD_REGEX = "^[^<>]{5,64}$";
 
 	/** The Constant NAME_REGEX. */
-	private static final String NAME_REGEX = "[a-zA-Z]*|[ЁёА-я]*";
+	private static final String NAME_REGEX = "[a-zA-Z]+|[а-яА-ЯёЁ]+";
 
 	/** The Constant MAX_LENGTH. */
 	private static final int MAX_LENGTH_NAME = 20;
@@ -28,9 +28,16 @@ public class InputDataValidator {
 	/** The Constant CVV_REGEX. */
 	private static final String CVV_REGEX = "^\\d{3}$";
 
+	/** The Constant CAR_MODEL_REGEX. */
 	private static final String CAR_MODEL_REGEX = "^[\\w{1,50}\\s]+$";
+
+	/** The Constant CAR_YEAR_REGEX. */
 	private static final String CAR_YEAR_REGEX = "^\\d{4}$";
-	private static final String CAR_COST_REGEX = "^\\d{1,5}$";
+
+	/** The Constant CAR_COST_REGEX. */
+	private static final String CAR_COST_REGEX = "^[\\d]*[.,]?[\\d]+$";
+
+	/** The Constant CAR_DISCOUNT_REGEX. */
 	private static final String CAR_DISCOUNT_REGEX = "^\\d{1,2}$";
 
 	/**
@@ -46,6 +53,21 @@ public class InputDataValidator {
 	 */
 	public static InputDataValidator getInstance() {
 		return instance;
+	}
+
+	/**
+	 * Checks if is the user data valid.
+	 *
+	 * @param email the email
+	 * @param password the password
+	 * @param firstName the first name
+	 * @param lastName the last name
+	 * @param phoneNumber the phone number
+	 * @return true, if is the user data valid
+	 */
+	public boolean isUserValid(String email, String password, String firstName, String lastName, String phoneNumber) {
+		return isEmailValid(email) && isPasswordValid(password) && isNameValid(firstName) && isNameValid(lastName)
+				&& isPhoneNumberValid(phoneNumber);
 	}
 
 	/**
@@ -127,14 +149,25 @@ public class InputDataValidator {
 		return cvv.matches(CVV_REGEX);
 	}
 
+	/**
+	 * Checks if is car data valid.
+	 *
+	 * @param model    the model
+	 * @param year     the year
+	 * @param cost     the cost
+	 * @param discount the discount
+	 * @return true, if is car data valid
+	 */
 	public boolean isCarDataValid(String model, String year, String cost, String discount) {
-		boolean result = false;
-		if (isCarModelValid(model) && isCarYearValid(year) && isCarCostValid(cost) && isCarDiscountValid(discount)) {
-			result = true;
-		}
-		return result;
+		return isCarModelValid(model) && isCarYearValid(year) && isCarCostValid(cost) && isCarDiscountValid(discount);
 	}
 
+	/**
+	 * Checks if is car model valid.
+	 *
+	 * @param model the model
+	 * @return true, if is car model valid
+	 */
 	private boolean isCarModelValid(String model) {
 		if (model == null || model.isBlank()) {
 			return false;
@@ -142,6 +175,12 @@ public class InputDataValidator {
 		return model.matches(CAR_MODEL_REGEX);
 	}
 
+	/**
+	 * Checks if is car year valid.
+	 *
+	 * @param year the year
+	 * @return true, if is car year valid
+	 */
 	private boolean isCarYearValid(String year) {
 		if (year == null || year.isBlank()) {
 			return false;
@@ -149,6 +188,12 @@ public class InputDataValidator {
 		return year.matches(CAR_YEAR_REGEX);
 	}
 
+	/**
+	 * Checks if is car cost valid.
+	 *
+	 * @param cost the cost
+	 * @return true, if is car cost valid
+	 */
 	private boolean isCarCostValid(String cost) {
 		if (cost == null || cost.isBlank()) {
 			return false;
@@ -156,6 +201,12 @@ public class InputDataValidator {
 		return cost.matches(CAR_COST_REGEX);
 	}
 
+	/**
+	 * Checks if is car discount valid.
+	 *
+	 * @param discount the discount
+	 * @return true, if is car discount valid
+	 */
 	private boolean isCarDiscountValid(String discount) {
 		if (discount == null || discount.isBlank()) {
 			return false;
