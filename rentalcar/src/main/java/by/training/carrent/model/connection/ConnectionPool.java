@@ -21,56 +21,55 @@ import org.apache.logging.log4j.Logger;
  * The Class ConnectionPool.
  */
 public class ConnectionPool {
-	
+
 	/** The Constant logger. */
 	private static final Logger logger = LogManager.getLogger();
-	
+
 	/** The instance. */
 	private static ConnectionPool instance;
-	
+
 	/** The Constant DATABASE_PROPERTY_PATH. */
 	private static final String DATABASE_PROPERTY_PATH = "properties/database.properties";
-	
+
 	/** The Constant DATABASE_URL. */
 	private static final String DATABASE_URL = "url";
-	
+
 	/** The Constant DATABASE_DRIVER. */
 	private static final String DATABASE_DRIVER = "driverClassName";
-	
+
 	/** The database url. */
 	private static String urlDb;
-	
+
 	/** The Constant properties. */
 	private static final Properties properties = new Properties();
-	
+
 	/** The Constant CONNECTION_POOL_SIZE. */
 	private static final int CONNECTION_POOL_SIZE = 4;
-	
+
 	/** The Constant START_TIME. */
 	private static final long START_TIME = 120000;
-	
+
 	/** The Constant STARTUP_TIME. */
 	private static final long STARTUP_TIME = 300000;
-	
+
 	/** The Constant isInitialized. */
 	private static final AtomicBoolean isInitialized = new AtomicBoolean();
-	
+
 	/** The free connections. */
 	private final BlockingQueue<ProxyConnection> freeConnections;
-	
+
 	/** The given away connections. */
 	private final BlockingQueue<ProxyConnection> givenAwayConnections;
-	
+
 	/** The connection timer. */
 	private final Timer connectionTimer;
-	
+
 	/** The Constant locker. */
 	private static final Lock locker = new ReentrantLock();
-	
+
 	static {
 		try {
-			InputStream inputStream = ConnectionPool.class.getClassLoader()
-					.getResourceAsStream(DATABASE_PROPERTY_PATH);
+			InputStream inputStream = ConnectionPool.class.getClassLoader().getResourceAsStream(DATABASE_PROPERTY_PATH);
 			if (inputStream == null) {
 				logger.log(Level.FATAL, "properties for connection to data base is not found : {}",
 						DATABASE_PROPERTY_PATH);
@@ -123,7 +122,7 @@ public class ConnectionPool {
 	}
 
 	/**
-	 * Gets the connection.
+	 * Get the connection.
 	 *
 	 * @return the connection
 	 */
@@ -143,7 +142,7 @@ public class ConnectionPool {
 	 * Release connection.
 	 *
 	 * @param connection the connection
-	 * @return true, if successful
+	 * @return true, if connection was released
 	 */
 	public boolean releaseConnection(Connection connection) {
 		boolean result = false;
@@ -153,7 +152,7 @@ public class ConnectionPool {
 				result = true;
 			} catch (InterruptedException e) {
 				logger.log(Level.ERROR, "exception in method getConnection()", e);
-				 Thread.currentThread().interrupt();
+				Thread.currentThread().interrupt();
 			}
 		} else {
 			logger.log(Level.ERROR, "error in method releaseConnection()");
@@ -164,7 +163,7 @@ public class ConnectionPool {
 	/**
 	 * Destroy pool.
 	 *
-	 * @return true, if successful
+	 * @return true, if connection pool was destroyed
 	 */
 	public boolean destroyPool() {
 		boolean result = false;
@@ -185,9 +184,9 @@ public class ConnectionPool {
 		}
 		return result;
 	}
-	
+
 	/**
-	 * Adds the leaked connections.
+	 * Add the leaked connections.
 	 */
 	void addLeakedConnections() {
 		int actualQuantityConnections = freeConnections.size() + givenAwayConnections.size();
@@ -208,7 +207,7 @@ public class ConnectionPool {
 	 */
 	private void deregisterDrivers() {
 		try {
-			while(DriverManager.getDrivers().hasMoreElements()) {
+			while (DriverManager.getDrivers().hasMoreElements()) {
 				DriverManager.deregisterDriver(DriverManager.getDrivers().nextElement());
 			}
 		} catch (SQLException e) {
