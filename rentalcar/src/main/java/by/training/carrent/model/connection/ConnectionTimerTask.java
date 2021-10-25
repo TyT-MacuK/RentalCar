@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ConnectionTimerTask extends TimerTask {
 	private static final Logger logger = LogManager.getLogger();
-	
+
 	@Override
 	public void run() {
 		logger.log(Level.INFO, "connection timer task is checking connection pool");
