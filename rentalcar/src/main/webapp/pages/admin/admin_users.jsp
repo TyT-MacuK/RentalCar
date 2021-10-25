@@ -13,7 +13,7 @@
 <title><fmt:message key="page.admin_users.title" /></title>
 </head>
 <body>
-	<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="container">
 		<div class="row">
 			<div class="col">
@@ -70,7 +70,7 @@
 						<div class="col-sm-7">
 							<label class="visually-hidden" for="autoSizingSelect">Preference</label>
 							<select class="form-select" name="status">
-								<option selected><fmt:message
+								<option value="choose status"><fmt:message
 										key="page.admin.chang_status" /></option>
 								<option value="ACTIVE"><fmt:message
 										key="page.admin_users.active" /></option>
@@ -88,6 +88,45 @@
 						</p>
 					</c:if>
 				</form>
+				<br />
+				<h3>
+					<fmt:message key="page.admin_users.heading_role" />
+				</h3>
+				<form action="${pageContext.request.contextPath}/controller"
+					method="post">
+					<input type="hidden" name="command"
+						value="change_user_role_command">
+					<div class="row mb-3">
+						<div class="col-sm-7">
+							<input type="text" class="form-control" name="id"
+								placeholder="<fmt:message
+								key="page.admin_users.id" />"
+								required pattern="^\d+$">
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col-sm-7">
+							<label class="visually-hidden" for="autoSizingSelect">Preference</label>
+							<select class="form-select" name="role">
+								<option value="choose role"><fmt:message
+										key="page.admin.chang_role" /></option>
+								<option value="USER"><fmt:message
+										key="page.admin_users.user" /></option>
+								<option value="ADMIN"><fmt:message
+										key="page.admin_users.admin" /></option>
+							</select>
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary">
+						<fmt:message key="submit" />
+					</button>
+					<c:if test="${change_status_incorrect == true}">
+						<p class="text-danger">
+							<fmt:message key="change.error" />
+						</p>
+					</c:if>
+				</form>
+				<br />
 			</div>
 			<div class="col">
 				<br />

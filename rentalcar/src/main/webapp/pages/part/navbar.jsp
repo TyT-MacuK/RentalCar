@@ -74,17 +74,13 @@
 						</a></li>
 					</ul></li>
 			</ul>
-			
-
-			
-			<form class="d-flex" action="${pageContext.request.contextPath}/controller"
-					method="post">
-					<input type="hidden" name="command"
-						value="find_manufacturer_by_id_command">
-				<input class="form-control me-2" name="manufacturer" type="search"
+			<form class="d-flex"
+				action="${pageContext.request.contextPath}/controller" method="post">
+				<input type="hidden" name="command"
+					value="find_manufacturer_by_id_command"> <input
+					class="form-control me-2" name="manufacturer" type="search"
 					placeholder=<fmt:message key="navbar.search_field"/>
-					aria-label="Search" required
-						pattern="^[a-zA-Z]+$">
+					aria-label="Search" required pattern="^[a-zA-Z]+$">
 				<c:if test="${car_manufacturer_incorrect == true}">
 					<p class="text-danger">
 						<fmt:message key="change.error" />

@@ -13,7 +13,7 @@
 <title><fmt:message key="page.orders.titel" /></title>
 </head>
 <body>
-	<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="row justify-content-md-center">
 		<div class="col col-lg-6 mt-3">
 			<h1 class="text-center text-success">
@@ -24,7 +24,7 @@
 				<thead>
 					<tr>
 						<th scope="col"><fmt:message key="page.orders.manufacturer" /></th>
-						<th scope="col"><fmt:message key="page.orders.model"/></th>
+						<th scope="col"><fmt:message key="page.orders.model" /></th>
 						<th scope="col"><fmt:message key="page.orders.pick_up_date" /></th>
 						<th scope="col"><fmt:message key="page.orders.return_date" /></th>
 						<th scope="col"><fmt:message key="page.orders.price" /></th>

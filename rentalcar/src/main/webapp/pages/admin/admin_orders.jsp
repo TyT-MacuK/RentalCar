@@ -13,7 +13,7 @@
 <title><fmt:message key="page.admin_orders.title" /></title>
 </head>
 <body>
-	<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="container">
 		<div class="row">
 			<div class="col">
@@ -29,8 +29,8 @@
 						<div class="col-sm-7">
 							<input type="text" class="form-control" name="order_id"
 								placeholder="<fmt:message
-								key="page.admin_orders.id" />" required
-						pattern="^\d+$">
+								key="page.admin_orders.id" />"
+								required pattern="^\d+$">
 						</div>
 					</div>
 					<button type="submit" class="btn btn-primary">
@@ -54,15 +54,15 @@
 						<div class="col-sm-7">
 							<input type="text" class="form-control" name="id"
 								placeholder="<fmt:message
-								key="page.admin_orders.id" />" required
-						pattern="^\d+$">
+								key="page.admin_orders.id" />"
+								required pattern="^\d+$">
 						</div>
 					</div>
 					<div class="row mb-3">
 						<div class="col-sm-7">
 							<label class="visually-hidden" for="autoSizingSelect">Preference</label>
 							<select class="form-select" name="status">
-								<option selected><fmt:message
+								<option value="choose status"><fmt:message
 										key="page.admin.chang_status" /></option>
 								<option value="PAID"><fmt:message
 										key="page.admin_orders.paid" /></option>
@@ -89,8 +89,10 @@
 						<tr>
 							<th scope="col"><fmt:message key="page.admin_orders.id" /></th>
 							<th scope="col"><fmt:message key="page.admin_orders.price" /></th>
-							<th scope="col"><fmt:message key="page.admin_orders.pick_up_date" /></th>
-							<th scope="col"><fmt:message key="page.admin_orders.return_date" /></th>
+							<th scope="col"><fmt:message
+									key="page.admin_orders.pick_up_date" /></th>
+							<th scope="col"><fmt:message
+									key="page.admin_orders.return_date" /></th>
 							<th scope="col"><fmt:message key="page.admin_orders.status" /></th>
 							<th scope="col"><fmt:message key="page.admin_orders.car_id" /></th>
 							<th scope="col"><fmt:message key="page.admin_orders.user_id" /></th>

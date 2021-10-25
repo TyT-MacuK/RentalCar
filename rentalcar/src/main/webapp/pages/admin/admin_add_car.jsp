@@ -13,22 +13,22 @@
 <title><fmt:message key="page.admin_add_car.title" /></title>
 </head>
 <body>
-	<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="row justify-content-md-center">
 		<div class="col col-lg-6 mt-3">
 			<h3 class="text-center">
 				<fmt:message key="page.admin_add_car.heading" />
 			</h3>
-			<c:if test="${input_data_incorrect == true}">
+			<c:if test="${input_data_incorrect}">
 				<p class="text-danger">
 					<fmt:message key="page.admin_add_car.invalid_data" />
 				</p>
 			</c:if>
-			<c:if test="${invalid_file == true}">
-					<p class="text-danger">
-						<fmt:message key="page.admin_add_car.invalid_file" />
-					</p>
-				</c:if>
+			<c:if test="${invalid_file}">
+				<p class="text-danger">
+					<fmt:message key="page.admin_add_car.invalid_file" />
+				</p>
+			</c:if>
 			<form action="${pageContext.request.contextPath}/upload/image"
 				method="post" enctype='multipart/form-data'>
 				<input type="hidden" name="command" value="admin_add_car_page">

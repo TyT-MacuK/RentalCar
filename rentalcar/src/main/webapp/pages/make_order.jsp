@@ -12,7 +12,7 @@
 <title><fmt:message key="page.make_order.titel" /></title>
 </head>
 <body>
-	<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<h3 class="text-center">
 		<fmt:message key="page.make_order.heading" />
 	</h3>
@@ -21,7 +21,7 @@
 			<div class="col">
 				<img src="${pageContext.request.contextPath}${car.getImageUrl()}"
 					alt="">
-				<h6>${car.getCarManufacturer()} ${car.getModel()}</h6>
+				<h6>${car.getCarManufacturer()}${car.getModel()}</h6>
 				<span class="year text-success">${car.getYear()}</span>
 				<c:if test="${car.getCarTransmission() == 'AUTOMATIC'}">
 					<span class="transmission text-success"><fmt:message
@@ -61,14 +61,21 @@
 								key="page.make_order.return_date" /></label> <input type="date"
 							class="form-control" name="return_date">
 					</div>
-					<c:if test="${booked == true}">
-					     <p class="text-danger"><fmt:message key="page.make_order.car_booked"/></p>
+					<c:if test="${booked}">
+						<p class="text-danger">
+							<fmt:message key="page.make_order.car_booked" />
+						</p>
 					</c:if>
-					<c:if test="${incorrect_date == true}">
-					     <p class="text-danger"><fmt:message key="page.make_order.incorrect_date"/></p>
+					<c:if test="${incorrect_date}">
+						<p class="text-danger">
+							<fmt:message key="page.make_order.incorrect_date" />
+						</p>
 					</c:if>
-					<c:if test="${pick_up_date_is_before_return_date == true}">
-					     <p class="text-danger"><fmt:message key="page.make_order.pick_up_date_is_before_return_date"/></p>
+					<c:if test="${pick_up_date_is_before_return_date}">
+						<p class="text-danger">
+							<fmt:message
+								key="page.make_order.pick_up_date_is_before_return_date" />
+						</p>
 					</c:if>
 					<br />
 					<button type="submit" class="btn btn-primary">

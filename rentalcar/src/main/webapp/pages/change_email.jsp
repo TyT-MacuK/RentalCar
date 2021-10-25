@@ -12,7 +12,7 @@
 <title><fmt:message key="page.change_email.title" /></title>
 </head>
 <body>
-<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="row justify-content-md-center">
 		<div class="col col-lg-6 mt-3">
 			<h3 class="text-center">

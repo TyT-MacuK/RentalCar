@@ -12,7 +12,7 @@
 <title><fmt:message key="page.change_name.title" /></title>
 </head>
 <body>
-<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="row justify-content-md-center">
 		<div class="col col-lg-6 mt-3">
 			<h3 class="text-center">
@@ -23,7 +23,7 @@
 				<input type="hidden" name="command" value="change_first_name_page">
 				<div class="mb-2">
 					<input type="text" class="form-control" name="first_name" required
-						pattern="[a-zA-Z]*|[ЁёА-я]*">
+						pattern="[a-zA-Z]+|[а-яА-ЯёЁ]+">
 				</div>
 				<br />
 				<button type="submit" class="btn btn-primary">

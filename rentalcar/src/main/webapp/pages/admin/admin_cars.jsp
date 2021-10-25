@@ -13,7 +13,7 @@
 <title><fmt:message key="page.admin_cars.title" /></title>
 </head>
 <body>
-	<%@ include file="/pages/parts/navbar.jsp"%>
+	<%@ include file="/pages/part/navbar.jsp"%>
 	<div class="container">
 		<div class="row">
 			<div class="col">
@@ -102,7 +102,7 @@
 						<div class="col-sm-7">
 							<label class="visually-hidden" for="autoSizingSelect">Preference</label>
 							<select class="form-select" name="car_status">
-								<option selected><fmt:message
+								<option value="choose status"><fmt:message
 										key="page.admin.chang_status" /></option>
 								<option value="BOOKED"><fmt:message
 										key="page.admin_cars.booked" /></option>
@@ -172,14 +172,16 @@
 					</c:forEach>
 					</tbody>
 				</table>
-				 
+
 				<pgn:pagination currentPage="${current_page}"
 					maxPage="${max_number_of_pages}" pageType='admin_cars' />
-					<br />
-					<h4><a
-					href="${pageContext.request.contextPath}/controller?command=to_admin_add_car_page_command"
-					class="link-primary"><fmt:message key="page.admin_cars.add_car" />
-				</a></h4>
+				<br />
+				<h4>
+					<a
+						href="${pageContext.request.contextPath}/controller?command=to_admin_add_car_page_command"
+						class="link-primary"><fmt:message
+							key="page.admin_cars.add_car" /> </a>
+				</h4>
 			</div>
 		</div>
 	</div>
