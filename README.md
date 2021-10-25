@@ -36,3 +36,4 @@ Admin | Authenticated user |
 +	View order list
 +	Search order
 +	Chang order status
+![database_structure](https://user-images.githubusercontent.com/61230294/137756173-372854ca-4d4d-4986-a4e2-d76ec9c07c70.jpg)
