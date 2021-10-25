@@ -59,10 +59,10 @@ public class GoToOrdersPageCommand implements Command {
 		}
 		return router;
 	}
-	
+
 	private Map<Long, Car> createMapCarsByUserId(long userId) throws ServiceException {
-			List<Long> carsId = service.findCarsIdByUserId(userId);
-			CarServiceImpl carServise = CarServiceImpl.getInstance();
-			return carServise.findCarsIdByUserId(carsId);
+		List<Long> carsId = service.findCarsIdByUserId(userId);
+		CarServiceImpl carServise = CarServiceImpl.getInstance();
+		return carServise.findCarsByCarsId(carsId);
 	}
 }

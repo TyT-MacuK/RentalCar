@@ -44,5 +44,4 @@ public class ChangePasswordCommand implements Command {
 		}
 		return router;
 	}
-
 }

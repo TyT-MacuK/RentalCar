@@ -22,5 +22,4 @@ public class GoToChangeFirstNamePageCommand implements Command {
 		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.CHANGE_FIRST_NAME_REDIRECT);
 		return new Router(PagePath.CHANGE_FIRST_NAME_PAGE);
 	}
-
 }

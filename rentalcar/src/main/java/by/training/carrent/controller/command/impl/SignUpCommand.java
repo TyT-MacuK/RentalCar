@@ -21,8 +21,6 @@ import by.training.carrent.util.EmailSender;
 import by.training.carrent.util.CodeGenerator;
 import by.training.carrent.controller.Router;
 
-
-
 public class SignUpCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
 

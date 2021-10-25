@@ -1,7 +1,5 @@
 package by.training.carrent.controller.command.impl.change.admin;
 
-import java.math.BigDecimal;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -16,10 +14,11 @@ import by.training.carrent.controller.command.RequestParameter;
 import by.training.carrent.controller.command.SessionAttribute;
 import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
-import by.training.carrent.model.service.impl.CarServiceImpl;
+import by.training.carrent.model.service.impl.UserServiceImpl;
 
-public class ChangeCarCostCommand implements Command {
+public class ChangeUserStatusCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
+	private static final String STANDARD_STATUS = "choose status";
 
 	@Override
 	public Router execute(HttpServletRequest request) {
@@ -30,21 +29,24 @@ public class ChangeCarCostCommand implements Command {
 		if (!user.getRole().equals(User.UserRole.ADMIN)) {
 			return new Router(PagePath.ERROR_403_PAGE);
 		}
-		String carId = request.getParameter(RequestParameter.CAR_ID);
-		String carCost = request.getParameter(RequestParameter.CAR_COST);
-		CarServiceImpl service = CarServiceImpl.getInstance();
-		if (carId != null && !carId.isBlank() && carCost != null && !carCost.isBlank()) {
+		UserServiceImpl service = UserServiceImpl.getInstance();
+		String userId = request.getParameter(RequestParameter.USER_ID);
+		String userStatus = request.getParameter(RequestParameter.USER_STATUS);
+		if (userId != null && !userId.isBlank() && !userStatus.equals(STANDARD_STATUS)) {
 			try {
-				service.updateCost(Long.parseLong(carId), new BigDecimal(carCost));
-				router = new Router(PagePath.ADMIN_CARS_REDIRECT);
+				service.updateStatus(Long.parseLong(userId), User.UserStatus.valueOf(userStatus).ordinal() + 1);
+				router = new Router(PagePath.ADMIN_USERS_REDIRECT);
 				router.setRedirect();
+			} catch (NumberFormatException e) {
+				logger.log(Level.ERROR, "unknown status: {}", userStatus);
+				router = new Router(PagePath.ERROR_500_PAGE);
 			} catch (ServiceException e) {
-				logger.log(Level.ERROR, "error during changing car cost: ", e);
+				logger.log(Level.ERROR, "error during changing user status: ", e);
 				router = new Router(PagePath.ERROR_500_PAGE);
 			}
 		} else {
-			router = new Router(PagePath.ADMIN_CARS_PAGE);
-			request.setAttribute(RequestParameter.CHANGE_COST_INCORRECT, true);
+			router = new Router(PagePath.ADMIN_USERS_PAGE);
+			request.setAttribute(RequestParameter.CHANGE_STATUS_INCORRECT, true);
 		}
 		return router;
 	}

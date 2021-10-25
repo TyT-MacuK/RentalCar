@@ -14,7 +14,7 @@ import by.training.carrent.controller.command.SessionAttribute;
 
 public class GoToChangeEmailPageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
-	
+
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
@@ -22,5 +22,4 @@ public class GoToChangeEmailPageCommand implements Command {
 		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.CHANGE_EMAIL_REDIRECT);
 		return new Router(PagePath.CHANGE_EMAIL_PAGE);
 	}
-
 }

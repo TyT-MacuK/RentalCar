@@ -37,8 +37,22 @@ public class MakeOrderCommand implements Command {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute(SessionAttribute.USER);
 		Car car = (Car) session.getAttribute(SessionAttribute.CAR);
+		
 		String pickUpDateString = request.getParameter(PICK_UP_DATE);
 		String returnDateString = request.getParameter(RETURN_DATE);
+		if (pickUpDateString == null || pickUpDateString.isBlank() || returnDateString == null
+				|| returnDateString.isBlank()) {
+			logger.log(Level.INFO, "user entered wrong dates");
+			request.setAttribute(ORDER_INCORRECT_DATE, true);
+			return new Router(PagePath.MAKE_ORDER_PAGE);
+		}
+		LocalDate pickUpDate = LocalDate.parse(pickUpDateString);
+		LocalDate returnDate = LocalDate.parse(returnDateString);
+		if (pickUpDate.isAfter(returnDate) || pickUpDate.isBefore(LocalDate.now())) {
+			logger.log(Level.INFO, "user entered the pick up date of the lease after the return date of the lease");
+			request.setAttribute(ORDER_PICK_UP_BEFORE_RETURN, true);
+			return new Router(PagePath.MAKE_ORDER_PAGE);
+		}
 
 		parameters.put(USER_ID, Long.toString(user.getUserId()));
 		parameters.put(CAR_ID, Long.toString(car.getCarId()));
@@ -47,21 +61,6 @@ public class MakeOrderCommand implements Command {
 		parameters.put(CAR_COST, car.getCost().toString());
 		parameters.put(USER_DISCOUNT, Integer.toString(user.getDiscount()));
 		parameters.put(CAR_DISCOUNT, Integer.toString(car.getDiscount()));
-
-		if (pickUpDateString == null || pickUpDateString.isBlank() || returnDateString == null
-				|| returnDateString.isBlank()) {
-			logger.log(Level.INFO, "user entered wrong dates");
-			request.setAttribute(ORDER_INCORRECT_DATE, true);
-			return new Router(PagePath.MAKE_ORDER_PAGE);
-		}
-		
-		LocalDate pickUpDate = LocalDate.parse(pickUpDateString);
-		LocalDate returnDate = LocalDate.parse(returnDateString);
-		if (pickUpDate.isAfter(returnDate) || pickUpDate.isBefore(LocalDate.now())) {
-			logger.log(Level.INFO, "user entered the pick up date of the lease after the return date of the lease");
-			request.setAttribute(ORDER_PICK_UP_BEFORE_RETURN, true);
-			return new Router(PagePath.MAKE_ORDER_PAGE);
-		}
 
 		OrderServiceImpl orderService = OrderServiceImpl.getInstance();
 		CarServiceImpl carService = CarServiceImpl.getInstance();
@@ -72,7 +71,8 @@ public class MakeOrderCommand implements Command {
 				orderId = orderService.addAndReturnId(parameters);
 				session.setAttribute(SessionAttribute.ORDER_ID, orderId);
 				carService.updateStatus(car.getCarId(), Car.CarStatus.BOOKED.ordinal() + 1);
-				router = new Router(PagePath.PAYMENT_PAGE);
+				router = new Router(PagePath.PAYMENT_PAGE_REDIRECT);
+				router.setRedirect();
 			} else if (optionalCar.isPresent() && optionalCar.get().getCarStatus() == Car.CarStatus.BOOKED) {
 				List<Order> listOrders = orderService.findByCarId(car.getCarId());
 				if (!isCarFreeOnThisDate(pickUpDate, returnDate, listOrders)) {
@@ -83,7 +83,8 @@ public class MakeOrderCommand implements Command {
 				orderId = orderService.addAndReturnId(parameters);
 				session.setAttribute(SessionAttribute.ORDER_ID, orderId);
 				carService.updateStatus(car.getCarId(), Car.CarStatus.BOOKED.ordinal() + 1);
-				router = new Router(PagePath.PAYMENT_PAGE);
+				router = new Router(PagePath.PAYMENT_PAGE_REDIRECT);
+				router.setRedirect();
 			} else {
 				logger.log(Level.INFO, "car booked on this date");
 				request.setAttribute(CAR_BOOKED, true);

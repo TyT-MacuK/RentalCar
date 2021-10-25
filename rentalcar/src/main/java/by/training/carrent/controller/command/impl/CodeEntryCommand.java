@@ -12,7 +12,6 @@ import by.training.carrent.controller.Router;
 import by.training.carrent.controller.command.Command;
 import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.RequestParameter;
-import by.training.carrent.controller.command.SessionAttribute;
 import by.training.carrent.exception.ServiceException;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.impl.UserServiceImpl;
@@ -37,7 +36,7 @@ public class CodeEntryCommand implements Command {
 				logger.log(Level.INFO, "the code is confirmed. Status changed to active");
 			} else {
 				logger.log(Level.ERROR, "the entered code is incorrect");
-				request.setAttribute(SessionAttribute.ENTERED_CODE_ERROR, true);
+				request.setAttribute(RequestParameter.ENTERED_CODE_ERROR, true);
 				router = new Router(PagePath.CODE_PAGE);
 			}
 		} catch (ServiceException e) {

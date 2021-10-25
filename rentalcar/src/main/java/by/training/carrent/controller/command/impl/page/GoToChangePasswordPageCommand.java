@@ -22,5 +22,4 @@ public class GoToChangePasswordPageCommand implements Command {
 		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.CHANGE_PASSWORD_REDIRECT);
 		return new Router(PagePath.CHANGE_PASSWORD_PAGE);
 	}
-
 }

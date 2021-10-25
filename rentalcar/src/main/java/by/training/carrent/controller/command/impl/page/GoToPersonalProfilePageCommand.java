@@ -24,5 +24,4 @@ public class GoToPersonalProfilePageCommand implements Command {
 		router = new Router(PagePath.PERSONAL_PROFILE_PAGE);
 		return router;
 	}
-
 }

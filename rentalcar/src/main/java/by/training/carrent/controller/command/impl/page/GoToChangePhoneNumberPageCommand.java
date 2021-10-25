@@ -22,5 +22,4 @@ public class GoToChangePhoneNumberPageCommand implements Command {
 		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.CHANGE_PHONE_NUMBER_REDIRECT);
 		return new Router(PagePath.CHANGE_PHONE_NUMBER_PAGE);
 	}
-
 }

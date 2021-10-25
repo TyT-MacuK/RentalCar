@@ -29,7 +29,6 @@ public class ChangeFirstNameCommand implements Command {
 		UserServiceImpl service = UserServiceImpl.getInstance();
 		User user = (User) session.getAttribute(SessionAttribute.USER);
 		String name = request.getParameter(RequestParameter.USER_FIRST_NAME);
-
 		try {
 			if (service.updateFirstName(user.getUserId(), name)) {
 				user.setFirstName(name);
@@ -48,5 +47,4 @@ public class ChangeFirstNameCommand implements Command {
 		}
 		return router;
 	}
-
 }

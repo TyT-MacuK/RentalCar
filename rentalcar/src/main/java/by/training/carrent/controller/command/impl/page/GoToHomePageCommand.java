@@ -47,5 +47,4 @@ public class GoToHomePageCommand implements Command {
 		}
 		return router;
 	}
-
 }

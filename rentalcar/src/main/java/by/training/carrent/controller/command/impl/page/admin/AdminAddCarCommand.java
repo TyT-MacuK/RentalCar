@@ -61,7 +61,7 @@ public class AdminAddCarCommand implements Command {
 		try {
 			service.add(parameters, part);
 			router = new Router(PagePath.HOME_PAGE_REDIRECT);
-		router.setRedirect();
+			router.setRedirect();
 		} catch (ServiceException e) {
 			logger.log(Level.ERROR, "error on add car page: ", e);
 			router = new Router(PagePath.ERROR_500_PAGE);

@@ -45,5 +45,4 @@ public class ChangeLastNameCommand implements Command {
 		}
 		return router;
 	}
-
 }

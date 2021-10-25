@@ -54,5 +54,4 @@ public class ChangeEmailCommand implements Command {
 		}
 		return router;
 	}
-
 }

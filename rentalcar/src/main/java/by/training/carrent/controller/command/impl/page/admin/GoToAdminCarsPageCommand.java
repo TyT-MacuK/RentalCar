@@ -26,7 +26,7 @@ import by.training.carrent.model.service.impl.CarServiceImpl;
 public class GoToAdminCarsPageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int LIMIT_ORDERS_ON_PAGE = 3;
-	
+
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");

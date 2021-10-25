@@ -22,5 +22,4 @@ public class GoToSignInPageCommand implements Command {
 		session.setAttribute(SessionAttribute.PREVIOUS_PAGE, PagePath.SIGN_IN_PAGE_REDIRECT);
 		return new Router(PagePath.SIGN_IN_PAGE);
 	}
-
 }

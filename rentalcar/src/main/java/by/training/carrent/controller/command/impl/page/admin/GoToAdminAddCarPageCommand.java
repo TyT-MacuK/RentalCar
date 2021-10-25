@@ -17,7 +17,7 @@ import by.training.carrent.model.entity.User;
 
 public class GoToAdminAddCarPageCommand implements Command {
 	private static final Logger logger = LogManager.getLogger();
-	
+
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");

@@ -47,7 +47,7 @@ public class ChangeCarStatusCommand implements Command {
 			}
 		} else {
 			request.setAttribute(RequestParameter.CHANGE_CARS_STATUS_INCORRECT, true);
-			router = new Router(PagePath.ADMIN_ORDERS_PAGE);
+			router = new Router(PagePath.ADMIN_CARS_PAGE);
 		}
 		return router;
 	}
