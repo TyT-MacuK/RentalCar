@@ -12,8 +12,6 @@ import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import by.training.carrent.controller.command.PagePath;
-
 @WebFilter(urlPatterns = { "/pages/*" }, initParams = { @WebInitParam(name = "INDEX_PATH", value = "/index.jsp") })
 public class PageRedirectSecurityFilter implements Filter {
 	private String indexPath;

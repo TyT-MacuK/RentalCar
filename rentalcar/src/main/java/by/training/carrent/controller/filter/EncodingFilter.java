@@ -14,16 +14,18 @@ import javax.servlet.annotation.WebInitParam;
 		@WebInitParam(name = "encoding", value = "UTF-8", description = "Encoding Param") })
 public class EncodingFilter implements Filter {
 	private static final String ENCODING_PARAMETER = "encoding";
-    private static final String ENCODING = "UTF-8";
+	private static final String ENCODING = "UTF-8";
 	private String code;
 
+	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
-		code = fConfig.getInitParameter("ENCODING_PARAMETER");
+		code = fConfig.getInitParameter(ENCODING_PARAMETER);
 		if (code == null) {
 			code = ENCODING;
 		}
 	}
 
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		String codeRequest = request.getCharacterEncoding();
@@ -34,6 +36,7 @@ public class EncodingFilter implements Filter {
 		chain.doFilter(request, response);
 	}
 
+	@Override
 	public void destroy() {
 		code = null;
 	}
