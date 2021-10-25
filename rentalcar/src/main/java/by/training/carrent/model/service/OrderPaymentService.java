@@ -19,5 +19,4 @@ public interface OrderPaymentService {
 	 * @throws ServiceException the service exception
 	 */
 	boolean payForOrder(String cardNumber, String cvv, BigDecimal cost) throws ServiceException;
-	
 }
