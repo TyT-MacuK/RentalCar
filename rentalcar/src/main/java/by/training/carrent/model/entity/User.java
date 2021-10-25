@@ -6,48 +6,47 @@ import java.time.LocalDate;
  * The Class User.
  */
 public class User extends AbstractEntity {
-	
 	/**
 	 * The Enum UserStatus.
 	 */
 	public enum UserStatus {
-		ACTIVE, 
-		BANNED, 
-		CONFIRMATION_AWAITING
+		ACTIVE, BANNED, CONFIRMATION_AWAITING
 	}
 
 	/**
 	 * The Enum UserRole.
 	 */
 	public enum UserRole {
-		ADMIN, 
-		USER
+		ADMIN, USER
 	}
+
+	/** The serial version UID */
+	private static final long serialVersionUID = 7376896234790761285L;
 
 	/** The user id. */
 	private long userId;
-	
+
 	/** The email. */
 	private String email;
-	
+
 	/** The first name. */
 	private String firstName;
-	
+
 	/** The last name. */
 	private String lastName;
-	
+
 	/** The discount. */
 	private int discount;
-	
+
 	/** The phone number. */
 	private String phoneNumber;
-	
+
 	/** The date of birth. */
 	private LocalDate dateOfBirth;
-	
+
 	/** The status. */
 	private UserStatus status;
-	
+
 	/** The role. */
 	private UserRole role;
 
@@ -60,18 +59,18 @@ public class User extends AbstractEntity {
 	/**
 	 * Instantiates a new user.
 	 *
-	 * @param userId the user id
-	 * @param email the email
-	 * @param firstName the first name
-	 * @param lastName the last name
-	 * @param discont the discont
+	 * @param userId      the user id
+	 * @param email       the email
+	 * @param firstName   the first name
+	 * @param lastName    the last name
+	 * @param discount    the discount
 	 * @param phoneNumber the phone number
 	 * @param dateOfBirth the date of birth
-	 * @param status the status
-	 * @param role the role
+	 * @param status      the status
+	 * @param role        the role
 	 */
-	public User(long userId, String email, String firstName, String lastName, int discount,
-			String phoneNumber, LocalDate dateOfBirth, UserStatus status, UserRole role) {
+	public User(long userId, String email, String firstName, String lastName, int discount, String phoneNumber,
+			LocalDate dateOfBirth, UserStatus status, UserRole role) {
 		this.userId = userId;
 		this.email = email;
 		this.firstName = firstName;
@@ -84,7 +83,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the user id.
+	 * Get the user id.
 	 *
 	 * @return the user id
 	 */
@@ -93,7 +92,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the user id.
+	 * Set the user id.
 	 *
 	 * @param userId the new user id
 	 */
@@ -102,7 +101,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the email.
+	 * Get the email.
 	 *
 	 * @return the email
 	 */
@@ -111,7 +110,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the email.
+	 * Set the email.
 	 *
 	 * @param email the new email
 	 */
@@ -120,7 +119,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the first name.
+	 * Get the first name.
 	 *
 	 * @return the first name
 	 */
@@ -129,7 +128,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the first name.
+	 * Set the first name.
 	 *
 	 * @param firstName the new first name
 	 */
@@ -138,7 +137,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the last name.
+	 * Get the last name.
 	 *
 	 * @return the last name
 	 */
@@ -147,7 +146,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the last name.
+	 * Set the last name.
 	 *
 	 * @param lastName the new last name
 	 */
@@ -156,7 +155,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the discount.
+	 * Get the discount.
 	 *
 	 * @return the discount
 	 */
@@ -165,7 +164,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the discount.
+	 * Set the discount.
 	 *
 	 * @param discount the new discount
 	 */
@@ -174,7 +173,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the phone number.
+	 * Get the phone number.
 	 *
 	 * @return the phone number
 	 */
@@ -183,7 +182,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the phone number.
+	 * Set the phone number.
 	 *
 	 * @param phoneNumber the new phone number
 	 */
@@ -192,7 +191,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the date of birth.
+	 * Get the date of birth.
 	 *
 	 * @return the date of birth
 	 */
@@ -201,7 +200,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the date of birth.
+	 * Set the date of birth.
 	 *
 	 * @param dateOfBirth the new date of birth
 	 */
@@ -210,7 +209,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the status.
+	 * Get the status.
 	 *
 	 * @return the status
 	 */
@@ -219,7 +218,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the status.
+	 * Set the status.
 	 *
 	 * @param status the new status
 	 */
@@ -228,7 +227,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the role.
+	 * Get the role.
 	 *
 	 * @return the role
 	 */
@@ -237,7 +236,7 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the role.
+	 * Set the role.
 	 *
 	 * @param role the new role
 	 */
@@ -246,9 +245,10 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Hash code.
+	 * Returns a hash code value for the object. This method is supported for the
+	 * benefit of hash tables such as those provided by java.util.HashMap.
 	 *
-	 * @return the int
+	 * @return a hash code value for this object.
 	 */
 	public int hashCode() {
 		int prime = 31;
@@ -266,10 +266,10 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * Equals.
+	 * Indicates whether some other object is "equal to" this one.
 	 *
-	 * @param object the object
-	 * @return true, if successful
+	 * @param object the reference object with which to compare.
+	 * @return true if this object is the same as the compared object
 	 */
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -320,9 +320,11 @@ public class User extends AbstractEntity {
 	}
 
 	/**
-	 * To string.
+	 * Returns a string containing the characters in this sequence in the same order
+	 * as this sequence. The length of the string will be the length of this
+	 * sequence.
 	 *
-	 * @return the string
+	 * @return a string consisting of exactly this sequence of characters
 	 */
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -343,7 +345,7 @@ public class User extends AbstractEntity {
 	 * The Class Builder.
 	 */
 	public static class Builder {
-		
+
 		/** The user. */
 		private User user;
 
@@ -355,7 +357,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the user id.
+		 * Set the user id.
 		 *
 		 * @param userId the user id
 		 * @return the builder
@@ -366,7 +368,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the email.
+		 * Set the email.
 		 *
 		 * @param email the email
 		 * @return the builder
@@ -377,7 +379,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the first name.
+		 * Set the first name.
 		 *
 		 * @param firstName the first name
 		 * @return the builder
@@ -388,7 +390,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the last name.
+		 * Set the last name.
 		 *
 		 * @param lastName the last name
 		 * @return the builder
@@ -399,9 +401,9 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the discont.
+		 * Set the discount.
 		 *
-		 * @param discont the discont
+		 * @param discont the discount
 		 * @return the builder
 		 */
 		public Builder setDiscount(int discount) {
@@ -410,7 +412,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the phone number.
+		 * Set the phone number.
 		 *
 		 * @param phoneNumber the phone number
 		 * @return the builder
@@ -421,7 +423,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the date of birth.
+		 * Set the date of birth.
 		 *
 		 * @param dateOfBirth the date of birth
 		 * @return the builder
@@ -432,7 +434,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the status.
+		 * Set the status.
 		 *
 		 * @param status the status
 		 * @return the builder
@@ -443,7 +445,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the role.
+		 * Set the role.
 		 *
 		 * @param role the role
 		 * @return the builder
@@ -454,7 +456,7 @@ public class User extends AbstractEntity {
 		}
 
 		/**
-		 * Builds the user.
+		 * Build the user.
 		 *
 		 * @return the user
 		 */

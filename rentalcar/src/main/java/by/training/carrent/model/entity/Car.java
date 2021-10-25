@@ -6,35 +6,29 @@ import java.math.BigDecimal;
  * The Class Car.
  */
 public class Car extends AbstractEntity {
-
 	/**
 	 * The Enum CarTransmission.
 	 */
 	public enum CarTransmission {
-		AUTOMATIC, 
-		MANUAL
+		AUTOMATIC, MANUAL
 	}
 
 	/**
 	 * The Enum CarManufacturer.
 	 */
 	public enum CarManufacturer {
-		VOLKSWAGEN, 
-		SKODA, 
-		RENAULT,  
-		MAZDA, 
-		MERCEDES
+		VOLKSWAGEN, SKODA, RENAULT, MAZDA, MERCEDES
 	}
 
 	/**
 	 * The Enum CarStatus.
 	 */
 	public enum CarStatus {
-		BOOKED,  
-		FREE, 
-		CAR_IS_SERVICED, 
-		IMPOSSIBLE_TO_RENT
+		BOOKED, FREE, CAR_IS_SERVICED, IMPOSSIBLE_TO_RENT
 	}
+
+	/** The serial version UID */
+	private static final long serialVersionUID = -5585309648370863494L;
 
 	/** The car id. */
 	private long carId;
@@ -53,9 +47,9 @@ public class Car extends AbstractEntity {
 
 	/** The cost. */
 	private BigDecimal cost;
-	
+
 	/** The image url. */
-	private String imageUrl; 
+	private String imageUrl;
 
 	/** The car transmission. */
 	private CarTransmission carTransmission;
@@ -102,7 +96,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the car id.
+	 * Get the car id.
 	 *
 	 * @return the car id
 	 */
@@ -111,7 +105,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the car id.
+	 * Set the car id.
 	 *
 	 * @param carId the new car id
 	 */
@@ -120,7 +114,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the model.
+	 * Get the model.
 	 *
 	 * @return the model
 	 */
@@ -129,7 +123,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the model.
+	 * Set the model.
 	 *
 	 * @param model the new model
 	 */
@@ -138,7 +132,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the discount.
+	 * Get the discount.
 	 *
 	 * @return the discount
 	 */
@@ -147,7 +141,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the discount.
+	 * Set the discount.
 	 *
 	 * @param discount the new discount
 	 */
@@ -156,7 +150,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the year.
+	 * Get the year.
 	 *
 	 * @return the year
 	 */
@@ -165,7 +159,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the year.
+	 * Set the year.
 	 *
 	 * @param year the new year
 	 */
@@ -174,7 +168,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Checks if is of conditioner.
+	 * Check if is of conditioner.
 	 *
 	 * @return true, if is conditioner presence
 	 */
@@ -183,7 +177,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the conditioner.
+	 * Set the conditioner.
 	 *
 	 * @param conditioner the new conditioner
 	 */
@@ -192,7 +186,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the cost.
+	 * Get the cost.
 	 *
 	 * @return the cost
 	 */
@@ -201,7 +195,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the cost.
+	 * Set the cost.
 	 *
 	 * @param cost the new cost
 	 */
@@ -210,7 +204,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the image url.
+	 * Get the image url.
 	 *
 	 * @return the image url
 	 */
@@ -219,7 +213,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the image url.
+	 * Set the image url.
 	 *
 	 * @param imageUrl the new image url
 	 */
@@ -228,7 +222,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the car transmission.
+	 * Get the car transmission.
 	 *
 	 * @return the car transmission
 	 */
@@ -237,7 +231,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the car transmission.
+	 * Set the car transmission.
 	 *
 	 * @param carTransmission the new car transmission
 	 */
@@ -246,7 +240,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the car manufacturer.
+	 * Get the car manufacturer.
 	 *
 	 * @return the car manufacturer
 	 */
@@ -255,7 +249,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the car manufacturer.
+	 * Set the car manufacturer.
 	 *
 	 * @param carManufacturer the new car manufacturer
 	 */
@@ -264,7 +258,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the car status.
+	 * Get the car status.
 	 *
 	 * @return the car status
 	 */
@@ -273,7 +267,7 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the car status.
+	 * Set the car status.
 	 *
 	 * @param carStatus the new car status
 	 */
@@ -282,9 +276,10 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Hash code.
+	 * Returns a hash code value for the object. This method is supported for the
+	 * benefit of hash tables such as those provided by java.util.HashMap.
 	 *
-	 * @return the int
+	 * @return a hash code value for this object.
 	 */
 	public int hashCode() {
 		int prime = 31;
@@ -303,10 +298,10 @@ public class Car extends AbstractEntity {
 	}
 
 	/**
-	 * Equals.
+	 * Indicates whether some other object is "equal to" this one.
 	 *
-	 * @param object the object
-	 * @return true, if successful
+	 * @param object the reference object with which to compare.
+	 * @return true if this object is the same as the compared object
 	 */
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -352,14 +347,16 @@ public class Car extends AbstractEntity {
 		} else if (!imageUrl.equals(car.imageUrl)) {
 			return false;
 		}
-		return carTransmission == car.carTransmission
-				&& carManufacturer == car.carManufacturer && carStatus == car.carStatus;
+		return carTransmission == car.carTransmission && carManufacturer == car.carManufacturer
+				&& carStatus == car.carStatus;
 	}
 
 	/**
-	 * To string.
+	 * Returns a string containing the characters in this sequence in the same order
+	 * as this sequence. The length of the string will be the length of this
+	 * sequence.
 	 *
-	 * @return the string
+	 * @return a string consisting of exactly this sequence of characters
 	 */
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -392,7 +389,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the car id.
+		 * Set the car id.
 		 *
 		 * @param carId the car id
 		 * @return the builder
@@ -403,7 +400,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the model.
+		 * Set the model.
 		 *
 		 * @param model the model
 		 * @return the builder
@@ -414,7 +411,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the discount.
+		 * Set the discount.
 		 *
 		 * @param discount the discount
 		 * @return the builder
@@ -425,7 +422,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the year.
+		 * Set the year.
 		 *
 		 * @param year the year
 		 * @return the builder
@@ -436,7 +433,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the conditioner.
+		 * Set the conditioner.
 		 *
 		 * @param conditioner the conditioner
 		 * @return the builder
@@ -447,7 +444,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the cost.
+		 * Set the cost.
 		 *
 		 * @param cost the cost
 		 * @return the builder
@@ -456,9 +453,9 @@ public class Car extends AbstractEntity {
 			car.setCost(cost);
 			return this;
 		}
-		
+
 		/**
-		 * Sets the image url.
+		 * Set the image url.
 		 *
 		 * @param imageUrl the image url
 		 * @return the builder
@@ -469,7 +466,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the car transmission.
+		 * Set the car transmission.
 		 *
 		 * @param carTransmission the car transmission
 		 * @return the builder
@@ -480,7 +477,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the car manufacturer.
+		 * Set the car manufacturer.
 		 *
 		 * @param carManufacturer the car manufacturer
 		 * @return the builder
@@ -491,7 +488,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the car status.
+		 * Set the car status.
 		 *
 		 * @param carStatus the car status
 		 * @return the builder
@@ -502,7 +499,7 @@ public class Car extends AbstractEntity {
 		}
 
 		/**
-		 * Builds the car.
+		 * Build the car.
 		 *
 		 * @return the car
 		 */

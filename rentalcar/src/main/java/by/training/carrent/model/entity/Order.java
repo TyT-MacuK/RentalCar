@@ -7,15 +7,15 @@ import java.time.LocalDate;
  * The Class Order.
  */
 public class Order extends AbstractEntity {
-
 	/**
 	 * The Enum OrderStatus.
 	 */
 	public enum OrderStatus {
-		PAID,
-		AWAITS_PAYMENT,
-		DECLINED
+		PAID, AWAITS_PAYMENT, DECLINED
 	}
+
+	/** The serial version UID */
+	private static final long serialVersionUID = 3423591603615761393L;
 
 	/** The order id. */
 	private long orderId;
@@ -67,7 +67,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the order id.
+	 * Get the order id.
 	 *
 	 * @return the order id
 	 */
@@ -76,7 +76,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the order id.
+	 * Set the order id.
 	 *
 	 * @param orderId the new order id
 	 */
@@ -85,7 +85,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the price.
+	 * Get the price.
 	 *
 	 * @return the price
 	 */
@@ -94,7 +94,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the price.
+	 * Set the price.
 	 *
 	 * @param price the new price
 	 */
@@ -103,7 +103,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the pick up date.
+	 * Get the pick up date.
 	 *
 	 * @return the pick up date
 	 */
@@ -112,7 +112,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the pick up date.
+	 * Set the pick up date.
 	 *
 	 * @param pickUpDate the new pick up date
 	 */
@@ -121,7 +121,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the return date.
+	 * Get the return date.
 	 *
 	 * @return the return date
 	 */
@@ -130,7 +130,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the return date.
+	 * Set the return date.
 	 *
 	 * @param returnDate the new return date
 	 */
@@ -139,7 +139,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the order status.
+	 * Get the order status.
 	 *
 	 * @return the order status
 	 */
@@ -148,7 +148,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the order status.
+	 * Set the order status.
 	 *
 	 * @param status the new order status
 	 */
@@ -157,7 +157,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the car id.
+	 * Get the car id.
 	 *
 	 * @return the car id
 	 */
@@ -166,7 +166,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the car id.
+	 * Set the car id.
 	 *
 	 * @param carId the new car id
 	 */
@@ -175,7 +175,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Gets the user id.
+	 * Get the user id.
 	 *
 	 * @return the user id
 	 */
@@ -184,7 +184,7 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Sets the user id.
+	 * Set the user id.
 	 *
 	 * @param userId the new user id
 	 */
@@ -193,9 +193,10 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Hash code.
+	 * Returns a hash code value for the object. This method is supported for the
+	 * benefit of hash tables such as those provided by java.util.HashMap.
 	 *
-	 * @return the int
+	 * @return a hash code value for this object.
 	 */
 	public int hashCode() {
 		int prime = 31;
@@ -211,10 +212,10 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * Equals.
+	 * Indicates whether some other object is "equal to" this one.
 	 *
-	 * @param object the object
-	 * @return true, if successful
+	 * @param object the reference object with which to compare.
+	 * @return true if this object is the same as the compared object
 	 */
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -261,9 +262,11 @@ public class Order extends AbstractEntity {
 	}
 
 	/**
-	 * To string.
+	 * Returns a string containing the characters in this sequence in the same order
+	 * as this sequence. The length of the string will be the length of this
+	 * sequence.
 	 *
-	 * @return the string
+	 * @return a string consisting of exactly this sequence of characters
 	 */
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -294,7 +297,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the order id.
+		 * Set the order id.
 		 *
 		 * @param orderId the order id
 		 * @return the builder
@@ -305,7 +308,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the price.
+		 * Set the price.
 		 *
 		 * @param price the price
 		 * @return the builder
@@ -316,7 +319,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the pick up date.
+		 * Set the pick up date.
 		 *
 		 * @param pickUpDate the pick up date
 		 * @return the builder
@@ -327,7 +330,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the return date.
+		 * Set the return date.
 		 *
 		 * @param returnDate the return date
 		 * @return the builder
@@ -338,7 +341,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the order status.
+		 * Set the order status.
 		 *
 		 * @param status the status
 		 * @return the builder
@@ -349,7 +352,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the car id.
+		 * Set the car id.
 		 *
 		 * @param carId the car id
 		 * @return the builder
@@ -360,7 +363,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Sets the user id.
+		 * Set the user id.
 		 *
 		 * @param userId the user id
 		 * @return the builder
@@ -371,7 +374,7 @@ public class Order extends AbstractEntity {
 		}
 
 		/**
-		 * Builds the order.
+		 * Build the order.
 		 *
 		 * @return the order
 		 */
