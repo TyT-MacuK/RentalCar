@@ -10,7 +10,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Timer;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +20,6 @@ import by.training.carrent.model.connection.ConnectionPool;
 import by.training.carrent.model.dao.ColumnName;
 import by.training.carrent.model.dao.OrderDao;
 import by.training.carrent.model.entity.Order;
-import by.training.carrent.model.service.UnpaidOrderTimerTask;
 
 public class OrderDaoImpl implements OrderDao {
 	private static final Logger logger = LogManager.getLogger();
@@ -38,12 +36,6 @@ public class OrderDaoImpl implements OrderDao {
 			FROM orders
 			JOIN order_status ON orders.order_status_id = order_status.order_status_id
 			WHERE order_id = ?
-			""";
-	private static final String SQL_FIND_BY_STATUS = """
-			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
-			FROM orders
-			JOIN order_status ON orders.order_status_id = order_status.order_status_id
-			WHERE order_status = ?
 			""";
 	private static final String SQL_FIND_BY_CAR_ID = """
 			SELECT order_id, price, pick_up_date, return_date, order_status, car_id, user_id
@@ -88,26 +80,6 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	@Override
-	public boolean add(Order order) throws DaoException {
-		logger.log(Level.INFO, "method add()");
-		boolean result = false;
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_CREATE_ORDER);) {
-			statement.setBigDecimal(1, order.getPrice());
-			statement.setDate(2, Date.valueOf(order.getPickUpDate()));
-			statement.setDate(3, Date.valueOf(order.getReturnDate()));
-			statement.setLong(4, order.getOrderStatus().ordinal() + 1);
-			statement.setLong(5, order.getCarId());
-			statement.setLong(6, order.getUserId());
-			result = statement.executeUpdate() > 0;
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method add()", e);
-			throw new DaoException("Exception when add order", e);
-		}
-		return result;
-	}
-
-	@Override
 	public long addAndReturnId(Order order) throws DaoException {
 		logger.log(Level.INFO, "method addAndReturnId()");
 		long id = 0;
@@ -133,7 +105,7 @@ public class OrderDaoImpl implements OrderDao {
 	}
 
 	@Override
-	public Optional<Order> findById(Long id) throws DaoException {
+	public Optional<Order> findById(long id) throws DaoException {
 		logger.log(Level.INFO, "method findById()");
 		Optional<Order> result = Optional.empty();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
@@ -156,37 +128,6 @@ public class OrderDaoImpl implements OrderDao {
 			throw new DaoException("Exception when find order by id", e);
 		}
 		return result;
-	}
-
-	@Override
-	public boolean remove(Order order) throws DaoException {
-		return updateStatus(order.getOrderId(), Order.OrderStatus.DECLINED.ordinal() + 1);
-	}
-
-	@Override
-	public List<Order> findByStatus(String status) throws DaoException {
-		logger.log(Level.INFO, "method findByStatus()");
-		List<Order> listOrders = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_STATUS);) {
-			statement.setString(1, status.replace(UNDERSCORE, SPASE));
-			try (ResultSet resultSet = statement.executeQuery();) {
-				while (resultSet.next()) {
-					Order order = new Order.Builder().setOrderId(resultSet.getLong(ORDER_ID))
-							.setPrice(resultSet.getBigDecimal(ORDER_PRICE))
-							.setPickUpDate(resultSet.getDate(ORDER_PICK_UP_DATE).toLocalDate())
-							.setReturnDate(resultSet.getDate(ORDER_RETURN_DATE).toLocalDate())
-							.setOrderStatus(
-									Order.OrderStatus.valueOf(resultSet.getString(5).replace(SPASE, UNDERSCORE)))
-							.setCarId(resultSet.getLong(6)).setUserId(resultSet.getLong(7)).build();
-					listOrders.add(order);
-				}
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByStatus()", e);
-			throw new DaoException("Exception when find orders by status", e);
-		}
-		return listOrders;
 	}
 
 	@Override
@@ -369,7 +310,7 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public void rejectUnpaidOrders() throws DaoException {
-		logger.log(Level.INFO, "method countOrders()");
+		logger.log(Level.INFO, "method rejectUnpaidOrders()");
 		Connection connection = null;
 		try {
 			connection = ConnectionPool.getInstance().getConnection();
@@ -400,7 +341,6 @@ public class OrderDaoImpl implements OrderDao {
 				}
 			} catch (SQLException e) {
 				logger.log(Level.ERROR, "exception in method close()", e);
-				throw new DaoException("Exception when try close connection", e);
 			}
 		}
 	}

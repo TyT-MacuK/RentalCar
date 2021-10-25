@@ -72,6 +72,7 @@ public class UserDaoImpl implements UserDao {
 	private static final String SQL_UPDATE_PHONE_NUMBER = "UPDATE users SET phone_number = ? WHERE user_id = ?";
 	private static final String SQL_UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE email = ?";
 	private static final String SQL_UPDATE_STATUS = "UPDATE users SET user_status_id = ? WHERE user_id = ?";
+	private static final String SQL_UPDATE_ROLE = "UPDATE users SET user_role_id = ? WHERE user_id = ?";
 	private static final String SQL_COUNT_USERS = "SELECT COUNT(user_id) AS count_users FROM users";
 	
 	private UserDaoImpl() {
@@ -299,6 +300,23 @@ public class UserDaoImpl implements UserDao {
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new DaoException("Exception when update status", e);
+		}
+		return result;
+	}
+	
+
+	@Override
+	public boolean updateRole(long userId, long userRoleId) throws DaoException {
+		logger.log(Level.INFO, "method updateRole()");
+		boolean result = false;
+		try (Connection connection = ConnectionPool.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_ROLE)) {
+			statement.setLong(2, userId);
+			statement.setLong(1, userRoleId);
+			result = statement.executeUpdate() > 0;
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, "exception in method updateRole()", e);
+			throw new DaoException("Exception when update role", e);
 		}
 		return result;
 	}

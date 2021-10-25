@@ -74,7 +74,6 @@ public class OrderPaymentDaoImpl implements OrderPaymentDao {
 				}
 			} catch (SQLException e) {
 				logger.log(Level.ERROR, "exception in method close()", e);
-				throw new DaoException("Exception when try close connection", e);
 			}
 		}
 		return result;

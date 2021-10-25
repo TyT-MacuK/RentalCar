@@ -26,7 +26,7 @@ import by.training.carrent.model.entity.Car;
 public class CarDaoImpl implements CarDao {
 
 	private static final Logger logger = LogManager.getLogger();
-	private static final CarDaoImpl instance = new CarDaoImpl();
+	private static CarDaoImpl instance = new CarDaoImpl();
 	private static final String SPASE = " ";
 	private static final String UNDERSCORE = "_";
 	private static final String SQL_CREATE_CAR = """
@@ -53,42 +53,6 @@ public class CarDaoImpl implements CarDao {
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
 			   WHERE car_id = ?
 					""";
-	private static final String SQL_FIND_BY_MODEL = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE model = ?
-					""";
-	private static final String SQL_FIND_BY_DISCOUNT = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE discount = ?
-					""";
-	private static final String SQL_FIND_BY_YEAR = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE year = ?
-					""";
-	private static final String SQL_FIND_BY_COST = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE cost = ?
-					""";
 	private static final String SQL_FIND_BY_MANUFACTURER = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
 			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
@@ -97,15 +61,6 @@ public class CarDaoImpl implements CarDao {
 			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
 			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
 			   WHERE car_manufacturer.manufacturer = ?
-					""";
-	private static final String SQL_FIND_BY_STATUS = """
-					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
-			conditioner, cost, image_url, car_transmission.transmission, car_status.car_status
-			   FROM cars
-			   JOIN car_transmission ON cars.car_transmission_id = car_transmission.transmission_id
-			   JOIN car_manufacturer ON cars.car_manufacturer_id = car_manufacturer.manufacturer_id
-			   JOIN car_status ON cars.car_status_id = car_status.car_status_id
-			   WHERE car_status.car_status = ?
 					""";
 	private static final String SQL_FIND_CARS_BY_USER_ID = """
 					SELECT car_id, car_manufacturer.manufacturer, model, discount, year,
@@ -129,6 +84,7 @@ public class CarDaoImpl implements CarDao {
 		return instance;
 	}
 
+	@Override
 	public boolean add(Car car) throws DaoException {
 		logger.log(Level.INFO, "method add()");
 		boolean result = false;
@@ -152,11 +108,6 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	@Override
-	public boolean remove(Car car) throws DaoException {
-		return updateStatus(car.getCarId(), Car.CarStatus.IMPOSSIBLE_TO_RENT.ordinal() + 1);
-	}
-
-	@Override
 	public List<Car> findByLimit(int leftBorder, int numberOfLines) throws DaoException {
 		logger.log(Level.INFO, "method findByLimit()");
 		List<Car> listCars = new ArrayList<>();
@@ -175,7 +126,7 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	@Override
-	public Optional<Car> findById(Long id) throws DaoException {
+	public Optional<Car> findById(long id) throws DaoException {
 		logger.log(Level.INFO, "method findById()");
 		Optional<Car> result = Optional.empty();
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
@@ -202,74 +153,6 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	@Override
-	public List<Car> findByModel(String model) throws DaoException {
-		logger.log(Level.INFO, "method findByModel()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_MODEL)) {
-			statement.setString(1, model);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByModel()", e);
-			throw new DaoException("Exception when find by model car", e);
-		}
-		return listCars;
-	}
-
-	@Override
-	public List<Car> findByDiscount(int discount) throws DaoException {
-		logger.log(Level.INFO, "method findByModel()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_DISCOUNT)) {
-			statement.setInt(1, discount);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByDiscount()", e);
-			throw new DaoException("Exception when find by discount", e);
-		}
-		return listCars;
-	}
-
-	@Override
-	public List<Car> findByYear(int year) throws DaoException {
-		logger.log(Level.INFO, "method findByYear()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_YEAR)) {
-			statement.setInt(1, year);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByYear()", e);
-			throw new DaoException("Exception when find by year", e);
-		}
-		return listCars;
-	}
-
-	@Override
-	public List<Car> findByCost(BigDecimal cost) throws DaoException {
-		logger.log(Level.INFO, "method findByCost()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_COST)) {
-			statement.setBigDecimal(1, cost);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByCost()", e);
-			throw new DaoException("Exception when find by cost", e);
-		}
-		return listCars;
-	}
-
-	@Override
 	public List<Car> findByManufacture(String carManufacturer) throws DaoException {
 		logger.log(Level.INFO, "method findByManufacture()");
 		List<Car> listCars = new ArrayList<>();
@@ -287,30 +170,13 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	@Override
-	public List<Car> findByStatus(String carStatus) throws DaoException {
-		logger.log(Level.INFO, "method findByStatus()");
-		List<Car> listCars = new ArrayList<>();
-		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_STATUS)) {
-			statement.setString(1, carStatus.replace(UNDERSCORE, SPASE));
-			try (ResultSet resultSet = statement.executeQuery()) {
-				listCars = createListCars(resultSet);
-			}
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, "exception in method findByStatus()", e);
-			throw new DaoException("Exception when find by status", e);
-		}
-		return listCars;
-	}
-
-	@Override
-	public Map<Long, Car> findCarsIdByUserId(List<Long> listCarsId) throws DaoException {
+	public Map<Long, Car> findCarsByCarsId(List<Long> listCarsId) throws DaoException {
 		logger.log(Level.INFO, "method findCarsById()");
 		Map<Long, Car> mapCars = new HashMap<>();
 		String fullQuery = makeRequest(listCarsId, SQL_FIND_CARS_BY_USER_ID);
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
-				Statement statement = connection.createStatement()) {
-			try (ResultSet resultSet = statement.executeQuery(fullQuery)) {
+				PreparedStatement statement = connection.prepareStatement(fullQuery)) {
+			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Car car = new Car.Builder().setCarId(resultSet.getLong(CAR_ID))
 							.setModel(resultSet.getString(CAR_MODEL)).setDiscount(resultSet.getInt(CAR_DISCOUNT))
@@ -378,17 +244,20 @@ public class CarDaoImpl implements CarDao {
 		return result;
 	}
 
-	public void updateStatusOfCarsByListId(List<Long> carsId) throws DaoException {
+	@Override
+	public boolean updateStatusOfCarsByListId(List<Long> carsId) throws DaoException {
 		logger.log(Level.INFO, "method updateStatus()");
+		boolean result = false;
 		String fullQuery = makeRequest(carsId, SQL_UPDATE_STATUS_OF_CARS_BY_ID);
 		try (Connection connection = ConnectionPool.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(fullQuery)) {
 			statement.setLong(1, Car.CarStatus.FREE.ordinal() + 1);
-			statement.executeUpdate();
+			result = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
 			logger.log(Level.ERROR, "exception in method updaupdateStatusteModel()", e);
 			throw new DaoException("Exception when update status", e);
 		}
+		return result;
 	}
 
 	@Override
@@ -425,7 +294,7 @@ public class CarDaoImpl implements CarDao {
 	}
 
 	private String makeRequest(List<Long> listCarsId, String firstPartOfQuery) {
-		StringBuilder secondPartOfQuery = new StringBuilder(" (");
+		StringBuilder secondPartOfQuery = new StringBuilder("(");
 		if (!listCarsId.isEmpty()) {
 			for (int i = 0; i < listCarsId.size(); i++) {
 				secondPartOfQuery.append(listCarsId.get(i));
@@ -438,6 +307,6 @@ public class CarDaoImpl implements CarDao {
 		} else {
 			secondPartOfQuery.append(0).append(")");
 		}
-			return firstPartOfQuery.concat(secondPartOfQuery.toString());
+		return firstPartOfQuery.concat(secondPartOfQuery.toString());
 	}
 }
