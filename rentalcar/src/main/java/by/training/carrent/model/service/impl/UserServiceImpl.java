@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.DaoException;
 import by.training.carrent.exception.ServiceException;
+import by.training.carrent.model.dao.UserDao;
 import by.training.carrent.model.dao.impl.UserDaoImpl;
 import by.training.carrent.model.entity.User;
 import by.training.carrent.model.service.UserService;
@@ -22,7 +23,7 @@ import static by.training.carrent.controller.command.RequestParameter.*;
 public class UserServiceImpl implements UserService {
 	private static final Logger logger = LogManager.getLogger();
 	private static final UserServiceImpl instance = new UserServiceImpl();
-	private final UserDaoImpl userDao = UserDaoImpl.getInstance();
+	private final UserDao userDao = UserDaoImpl.getInstance();
 
 	private UserServiceImpl() {
 	}
@@ -43,12 +44,9 @@ public class UserServiceImpl implements UserService {
 		String dateOfBirth = parametrs.get(USER_DATE_OF_BIRTH);
 		String phoneNumber = parametrs.get(USER_PHONE_NUMBER);
 		InputDataValidator validator = InputDataValidator.getInstance();
-
-		if (validator.isEmailValid(email) && validator.isPasswordValid(password) && validator.isNameValid(firstName)
-				&& validator.isNameValid(lastName) && validator.isPhoneNumberValid(phoneNumber)) {
-
+		if (validator.isUserValid(email, password, firstName, lastName, phoneNumber)) {
 			HashGenerator hashGenerator = HashGenerator.getInstance();
-			String hashPassword = hashGenerator.generatePasswordHash(parametrs.get(USER_PASSWORD));
+			String hashPassword = hashGenerator.generatePasswordHash(password);
 			User user = new User.Builder().setEmail(email).setFirstName(firstName).setLastName(lastName)
 					.setDateOfBirth(LocalDate.parse(dateOfBirth)).setPhoneNumber(phoneNumber)
 					.setStatus(User.UserStatus.CONFIRMATION_AWAITING).setRole(User.UserRole.USER).build();
@@ -60,18 +58,22 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return result;
-
 	}
 
 	@Override
 	public Optional<User> findByEmail(String email) throws ServiceException {
 		logger.log(Level.INFO, "method findByEmail()");
-		try {
-			return userDao.findByEmail(email);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByEmail()", e);
-			throw new ServiceException("Exception when find user by email", e);
+		Optional<User> result = Optional.empty();
+		InputDataValidator validator = InputDataValidator.getInstance();
+		if (validator.isEmailValid(email)) {
+			try {
+				result = userDao.findByEmail(email);
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method findByEmail()", e);
+				throw new ServiceException("Exception when find user by email", e);
+			}
 		}
+		return result;
 	}
 
 	@Override
@@ -82,35 +84,6 @@ public class UserServiceImpl implements UserService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method findByPasswordForAuthentication()", e);
 			throw new ServiceException("Exception when find user by password for authentication", e);
-		}
-	}
-
-	/*
-	 * @Override public List<User> findAll() throws ServiceException {
-	 * logger.log(Level.INFO, "method findAll()"); try { return userDao.findAll(); }
-	 * catch (DaoException e) { logger.log(Level.ERROR,
-	 * "exception in method findAll()", e); throw new
-	 * ServiceException("Exception when find all users", e); } }
-	 */
-	@Override
-	public Optional<User> findById(long userId) throws ServiceException {
-		logger.log(Level.INFO, "method findById()");
-		try {
-			return userDao.findById(userId);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findById()", e);
-			throw new ServiceException("Exception when find user by id", e);
-		}
-	}
-
-	@Override
-	public List<User> findByDateOfBirth(LocalDate dateOfBirth) throws ServiceException {
-		logger.log(Level.INFO, "method findByDateOfBirth()");
-		try {
-			return userDao.findByDateOfBirth(dateOfBirth);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByDateOfBirth()", e);
-			throw new ServiceException("Exception when find user by date of birth", e);
 		}
 	}
 
@@ -159,14 +132,14 @@ public class UserServiceImpl implements UserService {
 	public boolean updateFirstName(long userId, String name) throws ServiceException {
 		logger.log(Level.INFO, "method updateFirstName()");
 		boolean result = false;
-		try {
-			InputDataValidator validator = InputDataValidator.getInstance();
-			if (validator.isNameValid(name)) {
+		InputDataValidator validator = InputDataValidator.getInstance();
+		if (validator.isNameValid(name)) {
+			try {
 				result = userDao.updateFirstName(userId, name);
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method updateFirstName()", e);
+				throw new ServiceException("Exception when update first name", e);
 			}
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateFirstName()", e);
-			throw new ServiceException("Exception when update first name", e);
 		}
 		return result;
 	}
@@ -175,14 +148,14 @@ public class UserServiceImpl implements UserService {
 	public boolean updateLastName(long userId, String name) throws ServiceException {
 		logger.log(Level.INFO, "method updateLastName()");
 		boolean result = false;
-		try {
-			InputDataValidator validator = InputDataValidator.getInstance();
-			if (validator.isNameValid(name)) {
+		InputDataValidator validator = InputDataValidator.getInstance();
+		if (validator.isNameValid(name)) {
+			try {
 				result = userDao.updateFirstName(userId, name);
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method updateLastName()", e);
+				throw new ServiceException("Exception when update last name", e);
 			}
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateLastName()", e);
-			throw new ServiceException("Exception when update last name", e);
 		}
 		return result;
 	}
@@ -191,17 +164,17 @@ public class UserServiceImpl implements UserService {
 	public boolean updateEmail(long userId, String email, String password) throws ServiceException {
 		logger.log(Level.INFO, "method updateEmail()");
 		boolean result = false;
-		try {
-			InputDataValidator validator = InputDataValidator.getInstance();
-			if (validator.isEmailValid(email) && validator.isPasswordValid(password)) {
+		InputDataValidator validator = InputDataValidator.getInstance();
+		if (validator.isEmailValid(email) && validator.isPasswordValid(password)) {
+			try {
 				Optional<User> user = findByEmailAndPassword(email, password);
 				if (user.isPresent()) {
 					result = userDao.updateEmail(userId, email);
 				}
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method updateEmail()", e);
+				throw new ServiceException("Exception when update email", e);
 			}
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateEmail()", e);
-			throw new ServiceException("Exception when update email", e);
 		}
 		return result;
 	}
@@ -225,14 +198,14 @@ public class UserServiceImpl implements UserService {
 	public boolean updatePhoneNumber(long userId, String phoneNumber) throws ServiceException {
 		logger.log(Level.INFO, "method updatePhoneNumber()");
 		boolean result = false;
-		try {
-			InputDataValidator validator = InputDataValidator.getInstance();
-			if (validator.isPhoneNumberValid(phoneNumber)) {
+		InputDataValidator validator = InputDataValidator.getInstance();
+		if (validator.isPhoneNumberValid(phoneNumber)) {
+			try {
 				result = userDao.updatePhoneNumber(userId, phoneNumber);
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method updatePhoneNumber()", e);
+				throw new ServiceException("Exception when update phone number", e);
 			}
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updatePhoneNumber()", e);
-			throw new ServiceException("Exception when update phone number", e);
 		}
 		return result;
 	}
@@ -241,19 +214,19 @@ public class UserServiceImpl implements UserService {
 	public boolean updatePassword(String email, String oldPassword, String newPassword) throws ServiceException {
 		logger.log(Level.INFO, "method updateEmail()");
 		boolean result = false;
-		try {
-			InputDataValidator validator = InputDataValidator.getInstance();
-			if (validator.isPasswordValid(oldPassword) && validator.isPasswordValid(newPassword)) {
+		InputDataValidator validator = InputDataValidator.getInstance();
+		if (validator.isPasswordValid(oldPassword) && validator.isPasswordValid(newPassword)) {
+			try {
 				Optional<User> user = findByEmailAndPassword(email, oldPassword);
 				if (user.isPresent()) {
 					HashGenerator hashGenerator = HashGenerator.getInstance();
 					String hashPassword = hashGenerator.generatePasswordHash(newPassword);
 					result = userDao.updatePassword(email, hashPassword);
 				}
+			} catch (DaoException e) {
+				logger.log(Level.ERROR, "exception in method updatePassword()", e);
+				throw new ServiceException("Exception when update password", e);
 			}
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updatePassword()", e);
-			throw new ServiceException("Exception when update password", e);
 		}
 		return result;
 	}
@@ -266,6 +239,17 @@ public class UserServiceImpl implements UserService {
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method updateStatus()", e);
 			throw new ServiceException("Exception when update status", e);
+		}
+	}
+
+	@Override
+	public boolean updateRole(long userId, long roleId) throws ServiceException {
+		logger.log(Level.INFO, "method updateRole()");
+		try {
+			return userDao.updateRole(userId, roleId);
+		} catch (DaoException e) {
+			logger.log(Level.ERROR, "exception in method updateRole()", e);
+			throw new ServiceException("Exception when update role", e);
 		}
 	}
 

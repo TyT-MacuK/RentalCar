@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.DaoException;
 import by.training.carrent.exception.ServiceException;
+import by.training.carrent.model.dao.CarDao;
 import by.training.carrent.model.dao.impl.CarDaoImpl;
 import by.training.carrent.model.entity.Car;
 import by.training.carrent.model.service.CarService;
@@ -30,7 +31,7 @@ public class CarServiceImpl implements CarService {
 	private static final Logger logger = LogManager.getLogger();
 	private static final CarServiceImpl instance = new CarServiceImpl();
 	private static final String UPLOAD_DIR = "image";
-	private final CarDaoImpl carDao = CarDaoImpl.getInstance();
+	private final CarDao carDao = CarDaoImpl.getInstance();
 
 	private CarServiceImpl() {
 	}
@@ -54,17 +55,13 @@ public class CarServiceImpl implements CarService {
 		String status = parametrs.get(CAR_STATUS);
 		String imageUploadDir = parametrs.get(IMAGE_UPLOAD_DIRECTORY);
 		if (validator.isCarDataValid(model, year, cost, discount)) {
-			String imagePath = saveInageToDisk(part, imageUploadDir);
+			String imagePath = saveImageToDisk(part, imageUploadDir);
 			Car car = new Car.Builder().setModel(model)
 					.setCarManufacturer(Car.CarManufacturer.valueOf(manufacturer.toUpperCase()))
-					.setYear(Integer.parseInt(year))
-					.setConditioner(conditioner != null)
-					.setImageUrl(imagePath)
+					.setYear(Integer.parseInt(year)).setConditioner(conditioner != null).setImageUrl(imagePath)
 					.setCarTransmission(Car.CarTransmission.valueOf(transmission.toUpperCase()))
-					.setCost(new BigDecimal(cost))
-					.setDiscount(Integer.parseInt(discount))
-					.setCarStatus(Car.CarStatus.valueOf(status.toUpperCase()))
-					.build();
+					.setCost(new BigDecimal(cost)).setDiscount(Integer.parseInt(discount))
+					.setCarStatus(Car.CarStatus.valueOf(status.toUpperCase())).build();
 			try {
 				result = carDao.add(car);
 			} catch (DaoException e) {
@@ -73,17 +70,6 @@ public class CarServiceImpl implements CarService {
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public List<Car> findByLimit(int leftBorder, int numberOfLines) throws ServiceException {
-		logger.log(Level.INFO, "method findByLimit()");
-		try {
-			return carDao.findByLimit(leftBorder, numberOfLines);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByLimit()", e);
-			throw new ServiceException("Exception when find cars by limit", e);
-		}
 	}
 
 	@Override
@@ -98,46 +84,13 @@ public class CarServiceImpl implements CarService {
 	}
 
 	@Override
-	public List<Car> findByModel(String model) throws ServiceException {
-		logger.log(Level.INFO, "method findByModel()");
+	public List<Car> findByLimit(int leftBorder, int numberOfLines) throws ServiceException {
+		logger.log(Level.INFO, "method findByLimit()");
 		try {
-			return carDao.findByModel(model);
+			return carDao.findByLimit(leftBorder, numberOfLines);
 		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByModel()", e);
-			throw new ServiceException("Exception when find car by model", e);
-		}
-	}
-
-	@Override
-	public List<Car> findByDiscount(int discount) throws ServiceException {
-		logger.log(Level.INFO, "method findByDiscount()");
-		try {
-			return carDao.findByDiscount(discount);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByDiscount()", e);
-			throw new ServiceException("Exception when find car by discount", e);
-		}
-	}
-
-	@Override
-	public List<Car> findByYear(int year) throws ServiceException {
-		logger.log(Level.INFO, "method findByYear()");
-		try {
-			return carDao.findByYear(year);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByYear()", e);
-			throw new ServiceException("Exception when find car by year", e);
-		}
-	}
-
-	@Override
-	public List<Car> findByCost(BigDecimal cost) throws ServiceException {
-		logger.log(Level.INFO, "method findByCost()");
-		try {
-			return carDao.findByCost(cost);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByCost()", e);
-			throw new ServiceException("Exception when find car by cost", e);
+			logger.log(Level.ERROR, "exception in method findByLimit()", e);
+			throw new ServiceException("Exception when find cars by limit", e);
 		}
 	}
 
@@ -154,21 +107,10 @@ public class CarServiceImpl implements CarService {
 	}
 
 	@Override
-	public List<Car> findByStatus(String carStatus) throws ServiceException {
-		logger.log(Level.INFO, "method findByStatus()");
-		try {
-			return carDao.findByStatus(carStatus);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method findByStatus()", e);
-			throw new ServiceException("Exception when find car by status", e);
-		}
-	}
-	
-	@Override
-	public Map<Long, Car> findCarsIdByUserId(List<Long> listCarsId) throws ServiceException {
+	public Map<Long, Car> findCarsByCarsId(List<Long> listCarsId) throws ServiceException {
 		logger.log(Level.INFO, "method findCarsIdByUserId()");
 		try {
-			return carDao.findCarsIdByUserId(listCarsId);
+			return carDao.findCarsByCarsId(listCarsId);
 		} catch (DaoException e) {
 			logger.log(Level.ERROR, "exception in method findCarsIdByUserId()", e);
 			throw new ServiceException("Exception when find cars id by user id", e);
@@ -207,17 +149,6 @@ public class CarServiceImpl implements CarService {
 			throw new ServiceException("Exception when update status", e);
 		}
 	}
-	
-	@Override
-	public void updateStatusOfCarsByListId(List<Long> carsId) throws ServiceException {
-		logger.log(Level.INFO, "method updateStatusOfCarsByListId()");
-		try {
-			carDao.updateStatusOfCarsByListId(carsId);
-		} catch (DaoException e) {
-			logger.log(Level.ERROR, "exception in method updateStatusOfCarsByListId()", e);
-			throw new ServiceException("Exception when update status of cars by list of cars id", e);
-		}
-	}
 
 	@Override
 	public int countCars() throws ServiceException {
@@ -229,9 +160,9 @@ public class CarServiceImpl implements CarService {
 			throw new ServiceException("Exception when count cars", e);
 		}
 	}
-	
-	private String saveInageToDisk(Part part, String imageUploadDir) throws ServiceException {
-		logger.log(Level.INFO, "method saveInageToDisk()");
+
+	private String saveImageToDisk(Part part, String imageUploadDir) throws ServiceException {
+		logger.log(Level.INFO, "method saveImageToDisk()");
 		String imagePath = null;
 		try (InputStream inputStream = part.getInputStream()) {
 			String submittedName = part.getSubmittedFileName();
@@ -239,7 +170,7 @@ public class CarServiceImpl implements CarService {
 			Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
 			imagePath = File.separator.concat(UPLOAD_DIR).concat(File.separator).concat(submittedName);
 		} catch (IOException e) {
-			logger.log(Level.ERROR, "exception in method saveInageToDisk()", e);
+			logger.log(Level.ERROR, "exception in method saveImageToDisk()", e);
 			throw new ServiceException("Exception when save image", e);
 		}
 		return imagePath;

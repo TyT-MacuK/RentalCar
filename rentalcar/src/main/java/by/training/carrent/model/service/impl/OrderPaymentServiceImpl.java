@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import by.training.carrent.exception.DaoException;
 import by.training.carrent.exception.ServiceException;
+import by.training.carrent.model.dao.OrderPaymentDao;
 import by.training.carrent.model.dao.impl.OrderPaymentDaoImpl;
 import by.training.carrent.model.service.OrderPaymentService;
 import by.training.carrent.model.validator.InputDataValidator;
@@ -15,7 +16,7 @@ import by.training.carrent.model.validator.InputDataValidator;
 public class OrderPaymentServiceImpl implements OrderPaymentService {
 	private static final Logger logger = LogManager.getLogger();
 	private static final OrderPaymentServiceImpl instance = new OrderPaymentServiceImpl();
-	private final OrderPaymentDaoImpl orderPaymentDao = OrderPaymentDaoImpl.getInstance();
+	private final OrderPaymentDao orderPaymentDao = OrderPaymentDaoImpl.getInstance();
 
 	private OrderPaymentServiceImpl() {
 	}
