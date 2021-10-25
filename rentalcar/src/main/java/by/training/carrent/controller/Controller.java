@@ -20,6 +20,7 @@ import static by.training.carrent.controller.command.RequestParameter.*;
 
 @WebServlet("/controller")
 public class Controller extends HttpServlet {
+	private static final long serialVersionUID = -4568529578476268214L;
 	private static final Logger logger = LogManager.getLogger();
 	private final CommandProvider provider = CommandProvider.getInstance();
 

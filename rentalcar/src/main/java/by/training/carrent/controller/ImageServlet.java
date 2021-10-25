@@ -20,15 +20,14 @@ import by.training.carrent.controller.command.PagePath;
 import by.training.carrent.controller.command.RequestParameter;
 
 @WebServlet("/upload/image")
-@MultipartConfig(fileSizeThreshold = 1024 * 1024,
-                 maxFileSize = 1024 * 1024 * 5,
-                 maxRequestSize = 1024 * 1024 * 25)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 public class ImageServlet extends HttpServlet {
+	private static final long serialVersionUID = 1945185307434499345L;
 	private static final Logger logger = LogManager.getLogger();
 	private static final String UPLOAD_DIR = "image";
 	private static final String MIME_TYPE_IMAGE = "image/";
 	private static final String MAIN_SERVLET = "/controller";
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -45,7 +44,7 @@ public class ImageServlet extends HttpServlet {
 			processPart(request, response, part);
 		} else {
 			logger.log(Level.WARN, "user is trying to upload a file that is larger than the available size");
-			request.setAttribute(INVALID_FILE, true);                
+			request.setAttribute(INVALID_FILE, true);
 			request.getRequestDispatcher(PagePath.ADMIN_ADD_CAR_PAGE).forward(request, response);
 		}
 	}
@@ -63,7 +62,7 @@ public class ImageServlet extends HttpServlet {
 				request.getRequestDispatcher(MAIN_SERVLET).forward(request, response);
 			} else {
 				logger.log(Level.WARN, "user is trying to upload a file that has other type");
-				request.setAttribute(INVALID_FILE, true);                   
+				request.setAttribute(INVALID_FILE, true);
 				request.getRequestDispatcher(PagePath.ADMIN_ADD_CAR_PAGE).forward(request, response);
 			}
 		} else {
