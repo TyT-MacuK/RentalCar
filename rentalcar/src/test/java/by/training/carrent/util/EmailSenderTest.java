@@ -19,16 +19,9 @@ public class EmailSenderTest {
 
 	@DataProvider()
 	public Object[][] createData() {
-		return new Object[][] { 
-			{ "korozarecipient@gmail.com", true },
-			{ "", false },
-			{ " ", false },
-			{ null, false } };
+		return new Object[][] { { "korozarecipient@gmail.com", true }, { "", false }, { " ", false }, { null, false } };
 	}
 
-	
-	
-	
 	@Test(description = "Testing method sendMail", dataProvider = "createData")
 	public void sendMailTest(String recipient, boolean expected) throws ServiceException {
 		String code = "TEST";

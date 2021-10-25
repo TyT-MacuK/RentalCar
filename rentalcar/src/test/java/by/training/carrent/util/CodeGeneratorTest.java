@@ -8,15 +8,12 @@ import org.testng.annotations.AfterClass;
 public class CodeGeneratorTest {
 	CodeGenerator codeGenerator;
 	String REGEX_CODE = "^\\d{4}$";
-	
+
 	@BeforeClass
 	public void beforeClass() {
-		codeGenerator = CodeGenerator.getInstance(); 
+		codeGenerator = CodeGenerator.getInstance();
 	}
 
-	
-	
-	
 	@Test
 	public void generateCodeToRegistrationTest() {
 		String actualCode = codeGenerator.generateCodeToRegistration();

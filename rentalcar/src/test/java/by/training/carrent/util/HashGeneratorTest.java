@@ -13,10 +13,6 @@ public class HashGeneratorTest {
 	public void initialize() {
 		hashGenerator = HashGenerator.getInstance();
 	}
-	
-	
-	
-	
 
 	@Test(description = "Testing generate password hash")
 	public void generatePasswordHashTest() {
