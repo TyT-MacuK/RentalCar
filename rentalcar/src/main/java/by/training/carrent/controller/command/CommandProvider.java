@@ -57,12 +57,10 @@ public final class CommandProvider {
 	private CommandProvider() {
 		initializeCommonCommands();
 		initializeAdminCommands();
+		initializeUserCommands();
 		initializeSignUpCommands();
 		initializeCommonChangeCommands();
-		initializeAdminChangeCommands();
-		commands.put(TO_ORDERS_PAGE_COMMAND, new GoToOrdersPageCommand());//user
-		commands.put(FIND_MANUFACTURER_BY_ID_COMMAND, new FindCarByManufacturerCommand());//comon
-		commands.put(FIND_ORDER_BY_ID_COMMAND, new FindOrderByIdCommand());//admin
+		initializeAdminChangeCommands();		
 	}
 
 	public static CommandProvider getInstance() {
@@ -95,6 +93,7 @@ public final class CommandProvider {
 		commands.put(TO_MAKE_ORDER_PAGE_COMMAND, new GoToMakeOrderPageCommand());
 		commands.put(PAYMENT_ENTRY_PAGE, new PaymentCommand());
 		commands.put(TO_PAYMENT_ENTRY_PAGE_COMMAND, new GoToPaymentEntryPageCommand());
+		commands.put(FIND_MANUFACTURER_BY_ID_COMMAND, new FindCarByManufacturerCommand());
 	}
 
 	private void initializeAdminCommands() {
@@ -103,6 +102,11 @@ public final class CommandProvider {
 		commands.put(TO_ADMIN_CARS_PAGE_COMMAND, new GoToAdminCarsPageCommand());
 		commands.put(ADMIN_ADD_CAR_PAGE, new AdminAddCarCommand());
 		commands.put(TO_ADMIN_ADD_CAR_PAGE_COMMAND, new GoToAdminAddCarPageCommand());
+		commands.put(FIND_ORDER_BY_ID_COMMAND, new FindOrderByIdCommand());
+	}
+	
+	private void initializeUserCommands() {
+		commands.put(TO_ORDERS_PAGE_COMMAND, new GoToOrdersPageCommand());
 	}
 
 	private void initializeSignUpCommands() {
