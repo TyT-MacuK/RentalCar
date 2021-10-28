@@ -78,5 +78,4 @@ public final class RequestParameter {
 
 	private RequestParameter() {
 	}
-
 }
