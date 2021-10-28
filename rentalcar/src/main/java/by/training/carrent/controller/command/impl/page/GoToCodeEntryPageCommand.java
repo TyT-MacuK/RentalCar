@@ -16,7 +16,6 @@ public class GoToCodeEntryPageCommand implements Command {
 	@Override
 	public Router execute(HttpServletRequest request) {
 		logger.log(Level.INFO, "method execute()");
-		logger.log(Level.INFO, "redirected to code page");
 		return new Router(PagePath.CODE_PAGE);
 	}
 }
