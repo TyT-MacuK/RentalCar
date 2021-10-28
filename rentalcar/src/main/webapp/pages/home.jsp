@@ -30,7 +30,7 @@
 						<img src="${pageContext.request.contextPath}${car.getImageUrl()}"
 							alt="">
 						<div class="caption">
-							<h6>${car.getCarManufacturer()}${car.getModel()}</h6>
+							<h6>${car.getCarManufacturer()} ${car.getModel()}</h6>
 							<c:if test="${car.getDiscount() > 0}">
 								<span class="price"><fmt:message key="home_page.price" />
 									- <del>${car.getCost()}</del></span>
