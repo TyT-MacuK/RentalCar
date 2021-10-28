@@ -69,7 +69,7 @@ public class PaginationTag extends TagSupport {
 			}
 			return SKIP_BODY;
 		} catch (IOException e) {
-			throw new JspException("PaginationTag error: " + e.getMessage(), e);
+			throw new JspException("PaginationTag error: {}", e);
 		}
 	}
 }
