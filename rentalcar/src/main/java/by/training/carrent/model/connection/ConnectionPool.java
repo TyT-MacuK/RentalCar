@@ -33,12 +33,13 @@ public class ConnectionPool {
 
 	/** The Constant DATABASE_URL. */
 	private static final String DATABASE_URL = "url";
+	
+	/** The database url. */
+	private static String urlDb;
 
 	/** The Constant DATABASE_DRIVER. */
 	private static final String DATABASE_DRIVER = "driverClassName";
 
-	/** The database url. */
-	private static String urlDb;
 
 	/** The Constant properties. */
 	private static final Properties properties = new Properties();
@@ -190,7 +191,7 @@ public class ConnectionPool {
 	 */
 	void addLeakedConnections() {
 		int actualQuantityConnections = freeConnections.size() + givenAwayConnections.size();
-		for (int i = 0; i < actualQuantityConnections; i++) {
+		for (int i = actualQuantityConnections; i < CONNECTION_POOL_SIZE; i++) {
 			try {
 				Connection connection = DriverManager.getConnection(urlDb, properties);
 				ProxyConnection proxyConnection = new ProxyConnection(connection);
