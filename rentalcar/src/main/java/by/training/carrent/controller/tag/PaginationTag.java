@@ -49,9 +49,9 @@ public class PaginationTag extends TagSupport {
 					if (i == currentPage) {
 						stringBuilder.append("<li class='page-item active'><a class='page-link' href='")
 								.append(pageType).append("&page=").append(i).append("'>").append(i).append("</a></li>");
-					} else if (i == 1 || i == maxPage) {
-						stringBuilder.append("<li class='page-item'><a class='page-link' href='").append(pageType)
-								.append("&page=").append(i).append("'>").append(i).append("</a></li>");
+					//} else if (i == 1 || i == maxPage) {
+					//	stringBuilder.append("<li class='page-item'><a class='page-link' href='").append(pageType)
+					//			.append("&page=").append(i).append("'>").append(i).append("</a></li>");
 					} else {
 						stringBuilder.append("<li class='page-item'><a class='page-link' href='").append(pageType)
 								.append("&page=").append(i).append("'>").append(i).append("</a></li>");
